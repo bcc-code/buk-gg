@@ -45,6 +45,19 @@ namespace Buk.Gaming.Sanity
                 await Sanity.DocumentSet<Player>().Create(user).CommitAsync();
                 return user;
             }
+
+            await Sanity.DocumentSet<Player>().PatchById(user.Id, p => p.Set = user).CommitAsync();
+            return user;
+        }
+
+        public async Task<Player> UpdateUserAsync(Player user, Player fromUser)
+        {
+            user.Nickname = fromUser.Nickname;
+            user.PhoneNumber = fromUser.PhoneNumber;
+            user.moreDiscordUsers = fromUser.moreDiscordUsers;
+            user.DiscordId = fromUser.DiscordId;
+            user.DiscordUser = fromUser.DiscordUser;
+            
             await Sanity.DocumentSet<Player>().PatchById(user.Id, p => p.Set = user).CommitAsync();
             return user;
         }

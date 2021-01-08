@@ -32,5 +32,11 @@ namespace Buk.Gaming
             }
             throw new Exception("User is not authorized.");
         }
+
+        public async Task<Player> UpdateCurrentUserAsync(Player player)
+        {
+            var currentUser = await Session.GetCurrentUser();
+            return await Players.UpdateUserAsync(currentUser, player);
+        }
     }
 }

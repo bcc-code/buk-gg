@@ -37,8 +37,8 @@ namespace Buk.Gaming.Controllers
         [HttpPut]
         public async Task<User> UpdateCurrentUser(Player player)
         {
-            player = await _players.SaveUserAsync(player);
-            var user = await _sessionProvider.GetCurrentUser();
+            player = await _players.UpdateCurrentUserAsync(player);
+            var user = new User();
             user.InjectFrom(player);
             return user;
         }
