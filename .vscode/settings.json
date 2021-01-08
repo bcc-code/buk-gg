@@ -1,7 +1,6 @@
 {
     "files.exclude": {
         "**/bin": true,
-        "**/node_modules": true,
         "**/obj": true,
         "**/wwwroot": true
     }
