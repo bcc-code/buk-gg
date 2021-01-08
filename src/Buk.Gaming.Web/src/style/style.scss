@@ -1,0 +1,186 @@
+// Custom variables
+@import 'variables';
+
+body {
+    // background-color: #333;
+    background: url('/img/rc19_background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Nunito Sans', Arial, Helvetica, sans-serif;
+
+    h1,
+    h2 {
+        font-family: 'ice_kingdombold', 'Kalam', Roboto Slab;
+        color: #14baf8;
+    }
+
+    h3,
+    h4,
+    h5 {
+        font-family: 'ice_kingdombold', Roboto Slab;
+    }
+}
+
+.jumbotron {
+    margin-top: 10px;
+    a {
+        color: #e73ff6;
+    }
+    .promotion {
+        background: black;
+        padding: 20px;
+        border-radius: 5px;
+        border-bottom: solid 2px orange;
+    }
+}
+
+a.nav-link {
+    color: white !important;
+}
+
+.bg-dark {
+    background-color: rgba(8, 23, 62, 0.8) !important;
+    border-color: rgba(200, 200, 255, 0.3) !important;
+    border-width: 0px !important;
+    border-top-width: 5px !important;
+}
+
+.btn-secondary {
+    background-color: rgba(45, 0, 45, 0.9) !important;
+    border-color: rgba(200, 200, 255, 0.2) !important;
+    border-width: 0px !important;
+    border-left-width: 5px !important;
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.bg-light {
+    background-color: #eee !important;
+}
+
+.bg-light-variant {
+    background-color: rgba(45, 0, 45, 0.9) !important;
+    border-radius: 5px;
+}
+
+.bg-dark,
+.ads {
+    a {
+        color: #e73ff6;
+
+        &.btn {
+            color: white;
+        }
+    }
+}
+
+nav a {
+    color: white;
+    font-family: 'waltographregular', Roboto Slab;
+    font-size: 1.2em;
+    text-transform: uppercase;
+
+    &:hover,
+    &.router-link-active {
+        color: #e73ff6;
+        text-decoration: none;
+    }
+}
+
+.dropdown-item {
+    a {
+        color: white !important;
+    }
+}
+
+figure img {
+    max-width: 100%;
+    border: solid 5px #aaa;
+}
+
+.bg-secondary {
+    background-color: rgba(45, 0, 45, 0.9) !important;
+}
+
+.card {
+    text-align: center;
+    img {
+        max-height: 100px;
+        margin-top: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    margin-bottom: 40px !important;
+}
+
+.tournament-logo {
+    width: 100%;
+    margin: auto;
+    position: relative;
+
+    img {
+        position: absolute;
+        left: 0;
+        right: 0;
+    }
+}
+
+.tournament-logo:after {
+    content: '';
+    display: block;
+    padding-bottom: 50%;
+}
+
+@media (max-width: 576px) {
+    h1.display-3 {
+        font-size: 2em;
+    }
+
+    .header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: #212;
+        border-bottom: 5px solid #14baf8;
+
+        img {
+            max-height: 50px;
+            max-width: 50px;
+        }
+
+        z-index: 100000;
+    }
+
+    footer {
+        border-top: 5px solid #14baf8;
+        background-color: #212;
+    }
+
+    .header + div {
+        margin-top: 100px;
+    }
+
+    .container {
+        padding: 0;
+        margin: 0;
+
+        .jumbotron,
+        .col.bg-dark {
+            border-radius: 0;
+            background-color: rgba(52, 58, 64, 0.7) !important;
+        }
+
+        .row .btn-block,
+        .tournaments .card {
+            margin-left: 10px;
+            width: calc(100% - 20px);
+            margin-bottom: 20px !important;
+            background-color: rgb(52, 58, 64) !important;
+        }
+
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+    }
+}

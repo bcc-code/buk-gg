@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "outDir": "wwwroot",
+        "target": "es5",
+        "module": "es2020",
+        "jsx": "preserve",
+        "importHelpers": true,
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "sourceMap": true,
+        "baseUrl": ".",
+        "types": ["webpack-env", "mocha"],
+        "typeRoots": ["src/@types"],
+        "paths": {
+            "@/*": [
+                "src/*"
+            ]
+        },
+        "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.vue",
+    ],
+    "exclude": ["node_modules"]
+}
