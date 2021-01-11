@@ -24,18 +24,20 @@ namespace Buk.Gaming.Web.Providers
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _memoryCache;
         private readonly IPlayerRepository _players;
+        private readonly IDiscordProvider _discord;
 
         private User _currentUser;
         private User _authenticatedUser;
 
         string[] Administrators { get; set; }
 
-        public SessionProvider(IHttpContextAccessor httpContextAccessor, IConfiguration configuration, IMemoryCache memoryCache, IPlayerRepository players)
+        public SessionProvider(IHttpContextAccessor httpContextAccessor, IConfiguration configuration, IMemoryCache memoryCache, IPlayerRepository players, IDiscordProvider discord)
         {
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
             _memoryCache = memoryCache;
             _players = players;
+            _discord = discord;
             Administrators = configuration["Authorization:Admins"].Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
         }
 
@@ -96,6 +98,11 @@ namespace Buk.Gaming.Web.Providers
                                     player.DateLastActive = DateTimeOffset.Now;
                                     player.PersonId = personId;
                                     player.Location = churchName ?? player.Location;
+                                    if (player.DiscordId != null) {
+                                        if (await _discord.IsConnectedAsync(player.DiscordId)) {
+                                            player.DiscordIsConnected = true;
+                                        }
+                                    }
                                     if (player.Email != userInfo.Email)
                                     {
                                         var existingWithSameEmail = await _players.GetPlayerAsync(userInfo.Email);
