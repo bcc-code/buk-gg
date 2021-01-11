@@ -83,10 +83,10 @@ export class SessionStore extends BaseStore<SessionState> {
                 state.currentUser.discordUser =
                     discordUser.username + '#' + discordUser.discriminator;
                 state.currentUser.discordId = discordUser.id;
-                if (discordUser.isConnected) {
-                    state.currentUser.discordIsConnected = true;
-                }
             },
+            setDiscordConnected: (state, connected: boolean) => {
+                state.currentUser.discordIsConnected = connected;
+            }
         };
 
         // ACTIONS //
@@ -140,11 +140,9 @@ export class SessionStore extends BaseStore<SessionState> {
                 return user;
             },
             loginDiscord: async (store, obj: {discordUser: any, invite: string}) => {
-                if (await api.discord.isConnected(obj.discordUser.id)) {
-                    obj.discordUser.isConnected = true;
-                } else {
-                    obj.discordUser.isConnected = false;
-                }
+                api.discord.isConnected(obj.discordUser.id).then((result) => {
+                    store.commit('setDiscordConnected', result);
+                })
                 this.commit('loginDiscord', obj.discordUser);
                 const user = await api.session.updateCurrentUser(this.state.currentUser);
                 this.setCurrentUser(user);
