@@ -56,15 +56,7 @@ class Discord {
         }
         return false;
     }
-
-    public async updateUser(user: Player) {
-        const result = await api.discord.updateUser();
-
-        console.log("UPDATED DISCORD")
-
-        return result.id != null ? result : false;
-    }
-
+    
     public async searchForMember(data: any) {
         const result = await api.discord.searchForMember(data);
 

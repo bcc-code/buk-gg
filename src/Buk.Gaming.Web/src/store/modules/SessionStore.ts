@@ -66,10 +66,6 @@ export class SessionStore extends BaseStore<SessionState> {
                 state.currentUser.discordIsConnected = false;
                 state.currentUser.discordUser = '';
             },
-            updateDiscord: (state, result: any) => {
-                state.currentUser.discordUser = result.tag;
-                state.currentUser.discordIsConnected = true;
-            },
             addDiscordUser: (state, discordUser: ExtraDiscordUser) => {
                 if (!state.currentUser.moreDiscordUsers) {
                     state.currentUser.moreDiscordUsers = [];

@@ -64,9 +64,6 @@ export class Api implements PluginObject<any> {
     };
 
     public discord = {
-        updateUser() {
-            return http.get<any>('discord/update');
-        },
         searchForMember(search: string) {
             return http.get<any>(`discord/search/${search}`);
         },
