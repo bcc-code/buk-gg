@@ -116,13 +116,6 @@ export default class App extends Vue {
         await this.$tournaments.loadAll();
         await this.$organizations.loadAll();
         await this.$teams.loadTeams();
-        if (this.$session.state.currentUser?.discordIsConnected) {
-            const result = await discord.updateUser(this.$session.state.currentUser);
-            if (result) {
-                await this.$session.updateDiscord(result);
-                await this.$session.updateUser(this.$session.state.currentUser);
-            }
-        }
     }
 
     public toggleNavOpen() {
