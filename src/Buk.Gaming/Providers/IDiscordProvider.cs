@@ -8,11 +8,8 @@ namespace Buk.Gaming.Providers
 {
     public interface IDiscordProvider
     {
-        Task<DiscordUser> GetUserAsync(string id = null);
-        Task<DiscordUser> UpdateUserAsync(User user);
+        Task<DiscordUser> SyncUserAsync(Player user);
 
-        Task<dynamic> SearchForMembers(string searchString);
-
-        Task<bool> IsConnectedAsync(string id);
+        Task<List<DiscordMember>> SearchForMembersAsync(string searchString);
     }
 }

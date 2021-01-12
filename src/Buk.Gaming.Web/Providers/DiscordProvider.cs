@@ -18,20 +18,26 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 
 namespace Buk.Gaming.Web.Providers
 {
     public class DiscordProvider : IDiscordProvider
     {
-        public DiscordProvider(IConfiguration config, IHttpClientFactory clients) {
+        public DiscordProvider(IConfiguration config, IHttpClientFactory clients, IOrganizationRepository organizations) {
             http = clients;
-            this.token = config.GetValue<string>("Discord:Token");
+            token = config.GetValue<string>("Discord:Token");
+            basePath = config.GetValue<string>("Discord:BasePath");
+
+            _organizations = organizations;
         }
         private readonly IHttpClientFactory http;
 
         private string token;
 
-        private string basePath = "https://discord.buk.gg"; //https://discord.buk.gg
+        private string basePath;
+
+        private readonly IOrganizationRepository _organizations;
 
 
         public class PostFunction
@@ -43,40 +49,49 @@ namespace Buk.Gaming.Web.Providers
             public string Data { get; set; }
         }
 
-        public async Task<DiscordUser> GetUserAsync(string id)
+        public async Task<DiscordUser> SyncUserAsync(Player user)
         {
-            var client = http.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-            var response = await client.GetAsync($"{basePath}/Get/{id}");
-            return JsonConvert.DeserializeObject<DiscordUser>(await response.Content.ReadAsStringAsync());
-        }
+            Organization[] organizations = await _organizations.GetPlayerOrganizationsAsync(user);
 
-        public async Task<DiscordUser> UpdateUserAsync(User user)
-        {
-            var serialize = JsonConvert.SerializeObject(user, new JsonSerializerSettings 
-            { 
-                ContractResolver = new CamelCasePropertyNamesContractResolver() 
+            var serialize = JsonConvert.SerializeObject(new { player = user, organizations }, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
-            
+
             var client = http.CreateClient();
-            var content = new StringContent(serialize, System.Text.Encoding.UTF8, "application/json");
-            var request = new HttpRequestMessage {
+
+            var request = new HttpRequestMessage
+            {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri($"{basePath}/Update"),
-                Content = content,
+                RequestUri = new Uri($"{basePath}/Sync"),
+                Content = new StringContent(serialize, Encoding.UTF8, "application/json"),
             };
             request.Headers.Authorization = new AuthenticationHeaderValue("Basic", token);
-            var response = await client.SendAsync(request);
-            var result = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<DiscordUser>(result);
+
+
+            try
+            {
+                var response = await client.SendAsync(request);
+                var result = await response?.Content?.ReadAsStringAsync();
+
+                if (result == null) return null;
+
+                var obj = JsonConvert.DeserializeObject<DiscordUser>(result);
+
+                return obj;
+            } catch
+            {
+                return null;
+            }
         }
-        public async Task<dynamic> SearchForMembers(string searchString)
+
+        public async Task<List<DiscordMember>> SearchForMembersAsync(string searchString)
         {
             var client = http.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
             var response = await (await client.GetAsync($"{basePath}/Search/{searchString}")).Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject(response);
+            return JsonConvert.DeserializeObject<List<DiscordMember>>(response);
         }
 
         public async Task<bool> IsConnectedAsync(string id)

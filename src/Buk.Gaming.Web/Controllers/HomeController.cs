@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Buk.Gaming.Controllers
 {
     public class HomeController : Controller
     {
-        public HomeController(IConfiguration configuration)
-        {
-            version = configuration.GetSection("Version").Value;
-        }
-
-        private string version { get; }
+        public static readonly string _version = DateTime.UtcNow.ToString();
 
         public IActionResult Index()
         {
@@ -20,7 +16,7 @@ namespace Buk.Gaming.Controllers
         [Route("api/version")]
         public IActionResult Version()
         {
-            return Ok(version);
+            return Ok(_version);
         }
     }
 }

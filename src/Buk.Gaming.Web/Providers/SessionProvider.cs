@@ -98,9 +98,12 @@ namespace Buk.Gaming.Web.Providers
                                     player.DateLastActive = DateTimeOffset.Now;
                                     player.PersonId = personId;
                                     player.Location = churchName ?? player.Location;
+
                                     if (player.DiscordId != null) {
-                                        if (await _discord.IsConnectedAsync(player.DiscordId)) {
+                                        var discordUser = await _discord.SyncUserAsync(player);
+                                        if (discordUser.Id != null) {
                                             player.DiscordIsConnected = true;
+                                            player.DiscordUser = discordUser.Tag;
                                         }
                                     }
                                     if (player.Email != userInfo.Email)

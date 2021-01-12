@@ -145,27 +145,11 @@ namespace Buk.Gaming.Sanity
             return organization;
         }
 
-        public Task<Organization[]> GetPlayerOrganizationsAsync(Player player, string role = "")
+        public async Task<Organization[]> GetPlayerOrganizationsAsync(Player player, string role = "")
         {
-            return Cache.GetOrCreateAsync("Sanity_Player_" + player.Id +  "_Organizations", async (c) =>
-            {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
+            Organization[] organizations = await GetOrganizationsAsync();
 
-                //var result = await Sanity.DocumentSet<SanityOrganization>().Where(o => o.Members.Find(m => m.Player.Value).Player.Value.Id == playerId && !o.IsDraft()).ToListAsync();
-                string query = $"*[_type == 'organization' && ('{player.Id}' in members[{(role != null ? $"role in '{role}'" : "")}].player->_id)]{{..., 'image': image.asset->url, 'teams': *[_type == 'team' && references(^._id)]{{..., game->{{..., 'icon': icon.asset->url}}, 'members': members[]{{player->{this.PlayerQuery}, role}}}}, 'members': members[]{{player->{this.PlayerQuery}, role}}}}";
-                // var result = await Sanity.DocumentSet<SanityOrganization>().Where(o => o.Members.Where(m => m.Player.Value.Id == playerId) != new SanityMember[0]).ToListAsync();
-                
-                var result = (await Sanity.Client.FetchAsync<Organization[]>(query)).Result;
-
-                //teams.Select(t => t.ToTeam(Sanity.HtmlBuilder)).ToArray()
-                // for (int i = 0; i < result.Count; i++)
-                // {
-                //     // var orgTeams = (await Sanity.DocumentSet<SanityTeam>().Where(t => t.Organization.Ref == result[i].Id).ToListAsync()).Select(t => t.ToTeam(Sanity.HtmlBuilder)).ToArray();
-                //     organizations[i] = result[i].ToOrganization(Sanity.HtmlBuilder, new Team[0]);
-                // }
-
-                return result;
-            });
+            return organizations.Where(o => o.Members.FirstOrDefault(m => m.Player.Id == player.Id) != null).ToArray();
         }
 
         // MEMBERS

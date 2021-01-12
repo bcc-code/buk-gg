@@ -35,7 +35,8 @@ namespace Buk.Gaming.Controllers
             if (user == null) {
                 return Unauthorized();
             }
-            return Ok(await Discord.UpdateUserAsync(user));
+
+            return Ok(await Discord.SyncUserAsync(user));
         }
 
         [Route("search/{searchString}")]
@@ -47,19 +48,7 @@ namespace Buk.Gaming.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await Discord.SearchForMembers(searchString));
-        }
-
-        [Route("connected/{id}")]
-        [HttpGet]
-        public async Task<IActionResult> IsConnected(string id)
-        {
-            User user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            return Ok(await Discord.IsConnectedAsync(id));
+            return Ok(await Discord.SearchForMembersAsync(searchString));
         }
     }
 }
