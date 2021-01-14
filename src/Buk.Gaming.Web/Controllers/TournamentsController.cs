@@ -102,39 +102,6 @@ namespace Buk.Gaming.Web.Controllers
         }
 
         [HttpGet]
-        [Route("{tournamentId}/sync")]
-        public async Task<IActionResult> SyncParticipantsAsync(string tournamentId)
-        {
-            User user = await Session.GetCurrentUser();
-            if (user == null) 
-            {
-                return Unauthorized();
-            }
-            var tournament = await TournamentInfo.GetAdminInfoAsync(user, tournamentId);
-            
-            if (tournament == null) {
-                return Ok();
-            }
-
-            var participants = Toornament.Organizer.GetParticipantsAsync(tournament.ToornamentId);
-            
-            if (tournament.SignupType == "team")
-            {
-                for (int i = 0; i < tournament.ParticipantTeams.Length; i++)
-                {
-                    var team = tournament.ParticipantTeams[i];
-                    var participant = new Toornament.Participant {
-                        Identifier = team.Item?.Id,
-                        Name = team.Item.Name,
-                        Id = team.ToornamentId,
-                    };
-                }
-            }
-
-            return Ok();
-        }
-
-        [HttpGet]
         [Route("{tournamentId}/participants")]
         public async Task<IActionResult> GetParticipantsAsync(string tournamentId)
         {

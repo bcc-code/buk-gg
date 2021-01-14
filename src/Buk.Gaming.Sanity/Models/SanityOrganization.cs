@@ -23,10 +23,8 @@ namespace Buk.Gaming.Sanity.Models {
 
         public string DiscordRoleId { get; set; }
 
-        [Include]
         public List<SanityMember> Members { get; set; } = new List<SanityMember>();
 
-        [Include]
         public List<SanityPendingMember> Pending { get; set; } = new List<SanityPendingMember>();
 
         [Include]

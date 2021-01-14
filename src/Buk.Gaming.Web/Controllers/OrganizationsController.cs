@@ -57,7 +57,7 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await OrganizationRepository.GetOrganizationsAsync());
+            return Ok(await OrganizationRepository.GetAllOrganizationsAsync());
         }
 
         [Route("{organizationId}")]
@@ -68,9 +68,10 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            var organizations = await OrganizationRepository.GetOrganizationsAsync();
-            var organization = organizations?.Where(o => o.Id == organizationId).FirstOrDefault();
-            return Ok(organization);
+
+            List<Organization> organizations = await OrganizationRepository.GetAllOrganizationsAsync();
+
+            return Ok(organizations.FirstOrDefault(o => o.Id == organizationId));
         }
 
         [Route("player/{role}")]
@@ -95,17 +96,6 @@ namespace Buk.Gaming.Web.Controllers
         //     }
         //     return Ok(await OrganizationRepository.GetMemberAsync(organizationId));
         // }
-
-        [Route("members")]
-        [HttpPost]
-        public async Task<IActionResult> GetMemberAsync(Player player)
-        {
-            if (await Session.GetCurrentUser() == null)
-            {
-                return Unauthorized();
-            }
-            return Ok(await OrganizationRepository.GetMemberAsync(player));
-        }
 
         [Route("{organizationId}/members")]
         [HttpPut]

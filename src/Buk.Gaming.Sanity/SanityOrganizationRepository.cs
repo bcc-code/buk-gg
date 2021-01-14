@@ -39,15 +39,41 @@ namespace Buk.Gaming.Sanity
             return (await GetOrganizationsAsync()).Select(o => o.ToOrganization()).ToList();
         }
 
+        private Task<List<Player>> GetPlayersAsync()
+        {
+            return Sanity.DocumentSet<Player>().Where(p => p.DateLastActive > DateTime.Now.AddMonths(-7)).ToListAsync();
+        }
+
         private Task<List<SanityOrganization>> GetOrganizationsAsync()
         {
             return Cache.GetOrCreateAsync("ORGANIZATIONS", async (c) =>
             {
                 c.SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
 
-                var result = await Sanity.DocumentSet<SanityOrganization>().ToListAsync();
+                List<SanityOrganization> organizations = await Sanity.DocumentSet<SanityOrganization>().ToListAsync();
 
-                return result;
+                List<Player> players = await GetPlayersAsync();
+
+                foreach (var org in organizations)
+                {
+                    List<SanityMember> removeMembers = new List<SanityMember>();
+                    foreach (var member in org.Members)
+                    {
+                        member.Player.Value = players.FirstOrDefault(p => p.Id == member.Player.Ref);
+
+                        if (member.Player.Value == null)
+                        {
+                            removeMembers.Add(member);
+                        }
+                    }
+                    foreach (var member in removeMembers)
+                    {
+                        org.Members.Remove(member);
+                    }
+
+                }
+
+                return organizations;
             });
         }
 

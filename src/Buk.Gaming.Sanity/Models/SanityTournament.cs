@@ -91,14 +91,14 @@ namespace Buk.Gaming.Sanity.Models
                 Game = Game?.Value?.ToGame(),
                 Id = Id,
                 SignupType = SignupType,
-                RequiredInformation = RequiredInfo.Select(r => r.GetForCurrentCulture()).ToList(),
-                Teams = Teams.Select(t => t.Team.Value.ToTeam()).ToList(),
+                RequiredInformation = RequiredInfo?.Select(r => r.GetForCurrentCulture()).ToList(),
+                Teams = Teams?.Select(t => t.Team.Value.ToTeam()).ToList(),
                 TeamSize = TeamSize,
-                CategoryIds = Categories.Select(c => c.Ref).ToList(),
+                CategoryIds = Categories?.Select(c => c.Ref).ToList(),
                 Winner = Winner?.Value?.Name,
                 Contacts = Contacts,
                 ResponsibleId = Responsible?.Ref,
-                PlayerIds = SoloPlayers.Select(p => p.Player.Ref).ToList(),
+                PlayerIds = SoloPlayers?.Select(p => p.Player.Ref).ToList(),
             };
         }
 
