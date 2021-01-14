@@ -92,9 +92,9 @@ namespace Buk.Gaming.Web.Providers
                                     var playerDate = DateTime.Parse(userInfo.Birthdate);
 
                                     player.Name = userInfo.FullName;
-                                    player.NoNbIsStandard = userInfo.Locale == "nb-NO" ? true : false;
-                                    player.IsO18 = date > playerDate ? true : false; 
-                                    player.Nickname = player.Nickname ?? userInfo.FirstName;
+                                    player.NoNbIsStandard = userInfo.Locale == "nb-NO";
+                                    player.IsO18 = date > playerDate; 
+                                    player.Nickname ??= userInfo.FirstName;
                                     player.DateLastActive = DateTimeOffset.Now;
                                     player.PersonId = personId;
                                     player.Location = churchName ?? player.Location;

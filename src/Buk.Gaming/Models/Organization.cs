@@ -1,4 +1,6 @@
 using Newtonsoft.Json;
+using System.Collections.Generic;
+
 namespace Buk.Gaming.Models
 {
     public class Organization
@@ -14,9 +16,9 @@ namespace Buk.Gaming.Models
 
         public string Image { get; set; }
 
-        public Member[] Members { get; set; }
+        public List<Member> Members { get; set; }
 
-        public PendingMember[] Pending { get; set; }
+        public List<PendingMember> Pending { get; set; }
     }
 
     public class Member {

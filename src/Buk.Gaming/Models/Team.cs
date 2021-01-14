@@ -17,7 +17,7 @@ namespace Buk.Gaming.Models
 
         public Player Captain { get; set; }
 
-        public Player[] Players { get; set; }
+        public List<Player> Players { get; set; }
 
         public Game Game { get; set; }
     }

@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Buk.Gaming.Sanity.Models {
     public class SanityOrganization : SanityDocument
@@ -23,93 +24,28 @@ namespace Buk.Gaming.Sanity.Models {
         public string DiscordRoleId { get; set; }
 
         [Include]
-        public List<SanityMember> Members { get; set; }
+        public List<SanityMember> Members { get; set; } = new List<SanityMember>();
 
         [Include]
-        public List<SanityPendingMember> Pending { get; set; }
+        public List<SanityPendingMember> Pending { get; set; } = new List<SanityPendingMember>();
 
         [Include]
         public SanityImage Image { get; set; }
 
+        public bool HasEditAccess(User user)
+        {
+            return Members.Where(m => m.Player.Ref == user.Id).Select(m => m.RoleStrength()).FirstOrDefault() >= 3;
+        }
+
         public Organization ToOrganization () {
-
-            var members = new Member[this.Members != null ? this.Members.Count : 0];
-
-            for (var i = 0; i < members.Length; i++)
-            {
-                members[i] = this.Members[i].ToMember();
-            }
-            
-            var pending = new PendingMember[this.Pending != null ? this.Pending.Count : 0];
-
-            for (var i = 0; i < pending.Length; i++)
-            {
-                pending[i] = this.Pending[i].ToPendingMember();
-            }
-
             return new Organization {
-                Id = this.Id,
-                Image = this.Image?.Asset?.Value?.Url,
-                Name = this.Name,
-                Members = members,
-                Pending = pending,
-                IsPublic = this.IsPublic,
+                Id = Id,
+                Image = Image?.Asset?.Value?.Url,
+                Name = Name,
+                Members = Members.Select(m => m.ToMember()).ToList(),
+                Pending = Pending.Select(p => p.ToPendingMember()).ToList(),
+                IsPublic = IsPublic,
             };
-        }
-
-        public SanityMember AddMember(User requester, Player player) 
-        {
-            SanityPendingMember pendingMember = null;
-            if (this.Pending != null)
-            {
-                pendingMember = this.Pending.Find(p => p.Player.Ref == player.Id);
-            }
-
-            int roleStrength = pendingMember != null ? 2 : 3;
-
-            if (this?.Members?.Find(m => m.Player.Ref == requester.Id)?.RoleStrength() >= roleStrength)
-                {
-                    if (this.Members.Find(m => m.Player.Ref == player.Id) == null)
-                    {
-        
-                        this.Members.Add(new SanityMember(player, "member"));
-
-                        if (pendingMember != null)
-                        {
-                            this.Pending.Remove(pendingMember);
-                        }
-                        return new SanityMember(player, "member");
-                    }
-                }
-            return null;
-        }
-
-        public Member UpdateMember(User requester, Member member) 
-        {
-            if (this.Members?.Find(m => m.Player.Ref == requester.Id)?.RoleStrength() >= 3)
-            {
-                var sMember = this.Members.Find(m => m.Player.Ref == member.Player.Id);
-
-                sMember.Role = member.Role;
-
-                return member;
-            }
-            return null;
-        }
-
-        public bool RemoveMember(User requester, string memberId)
-        {
-            
-            if (this.Members?.Find(m => m.Player.Ref == requester.Id)?.RoleStrength() >= 3 || requester.Id == memberId)
-            {
-                SanityMember member = this.Members?.Find(m => m.Player.Ref == memberId);
-                if (member != null) {
-                    this.Members.Remove(member);
-                }
-                //sOrganization.Members = sOrganization.Members.Where(m => m.Player.Ref != memberId).ToList();
-                return true;
-            }
-            return false;
         }
     }
 

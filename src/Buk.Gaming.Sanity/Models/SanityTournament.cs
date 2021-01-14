@@ -6,6 +6,8 @@ using Sanity.Linq.CommonTypes;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using Sanity.Linq.Extensions;
 
 namespace Buk.Gaming.Sanity.Models
 {
@@ -73,175 +75,59 @@ namespace Buk.Gaming.Sanity.Models
 
         public TournamentInfo ToTournamentInfo(SanityHtmlBuilder htmlBuilder)
         {
-            int teamCount = this.Teams != null ? this.Teams.Count : 0;
-            var teams = new Team[teamCount];
-
-            if (teams.Length > 0) {
-                for (int i = 0; i < this.Teams.Count; i++)
-                {
-                    var captain = this.Teams[i].Team.Value?.Captain.Value;
-                    teams[i] = new Team();
-                    teams[i].Name = this.Teams[i].Team.Value?.Name;
-                    teams[i].Id = this.Teams[i].Team.Ref;
-                    teams[i].Organization = new Organization() {
-                        Id = this.Teams[i].Team.Value?.Organization.Ref,
-                        IsPublic = this.Teams[i].Team.Value?.Organization.Value?.IsPublic == true,
-                    };
-                    teams[i].Captain = new Player() {
-                        Id = captain.Id,
-                        Name = captain.Name,
-                        Nickname = captain.Nickname,
-                        DiscordId = captain.DiscordId,
-                        DiscordUser = captain.DiscordUser,
-                    };
-                }
-            }
-
-            var categories = new string[this.Categories != null ? this.Categories.Count : 0];
-
-            if (categories.Length > 0)
-            {
-                for (int i = 0; i < this.Categories.Count; i++)
-                {
-                    categories[i] = this.Categories[i].Ref;
-                }
-            }
-
-            string[] playerIds = new string[this.SoloPlayers != null ? this.SoloPlayers.Count : 0];
-
-            for (int i = 0; i < playerIds.Length; i++)
-            {
-                playerIds[i] = this.SoloPlayers[i].Player.Ref;
-            }
-
-            var requiredInfo = new string[this.RequiredInfo != null ? this.RequiredInfo.Count : 0];
-
-            if (requiredInfo.Length > 0)
-            {
-                for (int i = 0; i < this.RequiredInfo.Count; i++)
-                {
-                    requiredInfo[i] = this.RequiredInfo[i].GetForCurrentCulture();
-                }
-            }
-
             return new TournamentInfo {
-                Slug = this.Slug?.Current,
-                MainImage = this.MainImage?.Asset?.Value?.Url,
-                Logo = this.Logo?.Asset?.Value?.Url,
-                Platform = this.Platform,
-                Title = this.Title?.GetForCurrentCulture(),
-                // Introduction = this.Introduction?.GetForCurrentCulture(htmlBuilder),
-                Body = this.Body?.GetForCurrentCulture(htmlBuilder),
-                ToornamentId = this.ToornamentId,
-                RegistrationForm = this.RegistrationForm?.GetForCurrentCulture(),
-                RegistrationOpen = this.RegistrationOpen,
-                TelegramLink = this.TelegramLink,
-                LiveStream = this.LiveStream,
-                LiveChat = this.LiveChat,
-                Game = this.Game?.Value?.ToGame(),
-                Id = this.Id,
-                SignupType = this.SignupType,
-                RequiredInformation = requiredInfo,
-                Teams = teams,
-                TeamSize = this.TeamSize,
-                CategoryIds = categories,
-                Winner = this.Winner?.Value?.Name,
-                Contacts = this.Contacts?.ToArray(),
-                ResponsibleId = this.Responsible?.Ref,
-                PlayerIds = playerIds,
+                Slug = Slug?.Current,
+                MainImage = MainImage?.Asset?.Value?.Url,
+                Logo = Logo?.Asset?.Value?.Url,
+                Platform = Platform,
+                Title = Title?.GetForCurrentCulture(),
+                Body = Body?.GetForCurrentCulture(htmlBuilder),
+                ToornamentId = ToornamentId,
+                RegistrationForm = RegistrationForm?.GetForCurrentCulture(),
+                RegistrationOpen = RegistrationOpen,
+                TelegramLink = TelegramLink,
+                LiveStream = LiveStream,
+                LiveChat = LiveChat,
+                Game = Game?.Value?.ToGame(),
+                Id = Id,
+                SignupType = SignupType,
+                RequiredInformation = RequiredInfo.Select(r => r.GetForCurrentCulture()).ToList(),
+                Teams = Teams.Select(t => t.Team.Value.ToTeam()).ToList(),
+                TeamSize = TeamSize,
+                CategoryIds = Categories.Select(c => c.Ref).ToList(),
+                Winner = Winner?.Value?.Name,
+                Contacts = Contacts,
+                ResponsibleId = Responsible?.Ref,
+                PlayerIds = SoloPlayers.Select(p => p.Player.Ref).ToList(),
             };
         }
 
         public TournamentAdminInfo ToTournamentAdminInfo(SanityHtmlBuilder htmlBuilder)
         {
-            int teamCount = this.Teams != null ? this.Teams.Count : 0;
-            var teams = new Participant<Team>[teamCount];
-
-            if (teams.Length > 0) {
-                for (int i = 0; i < this.Teams.Count; i++)
-                {
-                    var captain = this.Teams[i].Team.Value?.Captain.Value;
-                    teams[i] = new Participant<Team>();
-                    teams[i].Item = new Team();
-                    teams[i].Item.Name = this.Teams[i].Team.Value?.Name;
-                    teams[i].Item.Id = this.Teams[i].Team.Ref;
-                    teams[i].Item.Organization = new Organization() {
-                        Id = this.Teams[i].Team.Value?.Organization.Ref,
-                        IsPublic = this.Teams[i].Team.Value?.Organization.Value?.IsPublic == true,
-                        Name = this.Teams[i].Team.Value?.Organization.Value?.Name,
-                    };
-                    teams[i].Item.Captain = this.Teams[i].Team.Value?.Captain?.Value;
-                    
-                    teams[i].Item.Players = new Player[this.Teams[i].Team.Value.Players.Count];
-                    for (int x = 0; x < this.Teams[i].Team.Value?.Players.Count; x++) 
-                    {
-                        teams[i].Item.Players[x] = this.Teams[i].Team.Value?.Players[x]?.Value;
-                    }
-                    teams[i].Information = this.Teams[i].Information.ToArray();
-                    teams[i].ToornamentId = this.Teams[i].ToornamentId;
-                }
-            }
-
-            int playerCount = this.SoloPlayers != null ? this.SoloPlayers.Count : 0;
-
-            var players = new Participant<Player>[playerCount];
-
-            if (players.Length > 0)
-            {
-                for (int i = 0; i < this.SoloPlayers.Count; i++)
-                {
-                    players[i] = new Participant<Player>();
-                    players[i].Item = this.SoloPlayers[i].Player.Value;
-                    players[i].Information = this.SoloPlayers[i].Information.ToArray();
-                    players[i].ToornamentId = this.SoloPlayers[i].ToornamentId;
-                }
-            }
-
-            var categories = new string[this.Categories != null ? this.Categories.Count : 0];
-
-            if (categories.Length > 0)
-            {
-                for (int i = 0; i < this.Categories.Count; i++)
-                {
-                    categories[i] = this.Categories[i].Ref;
-                }
-            }
-
-            var requiredInfo = new string[this.RequiredInfo != null ? this.RequiredInfo.Count : 0];
-
-            if (requiredInfo.Length > 0)
-            {
-                for (int i = 0; i < this.RequiredInfo.Count; i++)
-                {
-                    requiredInfo[i] = this.RequiredInfo[i].GetForCurrentCulture();
-                }
-            }
-
             return new TournamentAdminInfo {
-                Slug = this.Slug?.Current,
-                MainImage = this.MainImage?.Asset?.Value?.Url,
-                Logo = this.Logo?.Asset?.Value?.Url,
-                Title = this.Title?.GetForCurrentCulture(),
-                // Introduction = this.Introduction?.GetForCurrentCulture(htmlBuilder),
-                Body = this.Body?.GetForCurrentCulture(htmlBuilder),
-                ToornamentId = this.ToornamentId,
-                RegistrationForm = this.RegistrationForm?.GetForCurrentCulture(),
-                RegistrationOpen = this.RegistrationOpen,
-                TelegramLink = this.TelegramLink,
-                LiveStream = this.LiveStream,
-                LiveChat = this.LiveChat,
-                Game = this.Game?.Value?.ToGame(),
-                Id = this.Id,
-                SignupType = this.SignupType,
-                RequiredInformation = requiredInfo,
-                TeamSize = this.TeamSize,
-                SoloPlayers = players,
-                CategoryIds = categories,
-                Winner = this.Winner?.Value?.Name,
-                Contacts = this.Contacts?.ToArray(),
-                Responsible = this.Responsible.Value,
-                ResponsibleId = this.Responsible.Ref,
-                ParticipantTeams = teams,
+                Slug = Slug?.Current,
+                MainImage = MainImage?.Asset?.Value?.Url,
+                Logo = Logo?.Asset?.Value?.Url,
+                Title = Title?.GetForCurrentCulture(),
+                Body = Body?.GetForCurrentCulture(htmlBuilder),
+                ToornamentId = ToornamentId,
+                RegistrationForm = RegistrationForm?.GetForCurrentCulture(),
+                RegistrationOpen = RegistrationOpen,
+                TelegramLink = TelegramLink,
+                LiveStream = LiveStream,
+                LiveChat = LiveChat,
+                Game = Game?.Value?.ToGame(),
+                Id = Id,
+                SignupType = SignupType,
+                RequiredInformation = RequiredInfo.Select(s => s.GetForCurrentCulture()).ToList(),
+                TeamSize =TeamSize,
+                SoloPlayers = SoloPlayers.Select(p => p.ToParticipant()).ToList(),
+                CategoryIds = Categories.Select(c => c.Ref).ToList(),
+                Winner = Winner?.Value?.Name,
+                Contacts = Contacts,
+                Responsible = Responsible.Value,
+                ResponsibleId = Responsible.Ref,
+                ParticipantTeams = Teams.Select(t => t.ToParticipant()).ToList(),
             };
         }
 
@@ -249,7 +135,7 @@ namespace Buk.Gaming.Sanity.Models
 
     public class TournamentTeam {
         public TournamentTeam() {
-            this.Key = Guid.NewGuid().ToString();
+            Key = Guid.NewGuid().ToString();
         }
 
         [JsonProperty("_key")]
@@ -261,12 +147,22 @@ namespace Buk.Gaming.Sanity.Models
         public List<string> Information { get; set; }
 
         public string ToornamentId { get; set; }
+
+        public Participant<Team> ToParticipant()
+        {
+            return new Participant<Team>
+            {
+                Information = Information,
+                Item = Team.Value.ToTeam(),
+                ToornamentId = ToornamentId,
+            };
+        }
     }
 
     public class TournamentPlayer {
         public TournamentPlayer()
         {
-            this.Key = Guid.NewGuid().ToString();
+            Key = Guid.NewGuid().ToString();
         }
         [JsonProperty("_key")]
         public string Key { get; set; }
@@ -277,5 +173,15 @@ namespace Buk.Gaming.Sanity.Models
         public List<string> Information { get; set; }
         
         public string ToornamentId { get; set; }
+
+        public Participant<Player> ToParticipant()
+        {
+            return new Participant<Player>
+            {
+                Information = Information,
+                Item = Player.Value,
+                ToornamentId = ToornamentId
+            };
+        }
     }
 }

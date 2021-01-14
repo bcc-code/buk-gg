@@ -33,21 +33,12 @@ namespace Buk.Gaming.Web.Providers
         }
         private readonly IHttpClientFactory http;
 
-        private string token;
+        private readonly string token;
 
-        private string basePath;
+        private readonly string basePath;
 
         private readonly IOrganizationRepository _organizations;
 
-
-        public class PostFunction
-        {
-            [JsonProperty("type")]
-            public string Type { get; set; }
-
-            [JsonProperty("data")]
-            public string Data { get; set; }
-        }
 
         public async Task<DiscordUser> SyncUserAsync(Player user)
         {
@@ -92,15 +83,6 @@ namespace Buk.Gaming.Web.Providers
             var response = await (await client.GetAsync($"{basePath}/Search/{searchString}")).Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<List<DiscordMember>>(response);
-        }
-
-        public async Task<bool> IsConnectedAsync(string id)
-        {
-            var client = http.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-            var response = await (await client.GetAsync($"{basePath}/IsConnected/{id}")).Content.ReadAsStringAsync();
-
-            return response != "null" ? true : false;
         }
     }
 }

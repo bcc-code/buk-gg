@@ -114,7 +114,7 @@
             <base-button @click="leaveOrganization()" :loading="loading.leaveOrganization" v-if="!isOwner && !edit && members.find(m => m.player._id == $session.state.currentUser._id)" class="float-right mr-2" type="danger">Leave</base-button>
         </div>
         <div class="float-right">
-            <loading-button v-if="!isMember" :func="() => requestToJoin()" :disabled="isPending || !$session.state.currentUser.discordIsConnected" type="success" :title="$t('organizations.requestToJoin').toUpperCase()"></loading-button>
+            <loading-button v-if="!isMember" :func="() => requestToJoin()" :disabled="isPending || !$session.state.currentUser.discordId" type="success" :title="$t('organizations.requestToJoin').toUpperCase()"></loading-button>
             <loading-button v-if="isPending" :func="() => deletePendingMember($session.state.currentUser)" :title="$t('common.cancel').toUpperCase()"></loading-button>
 
         </div>

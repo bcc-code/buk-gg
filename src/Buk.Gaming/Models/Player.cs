@@ -13,6 +13,7 @@ namespace Buk.Gaming.Models
         [JsonProperty("_type")]
         public string Type => "player";
 
+        [JsonIgnore]
         public int PersonId { get; set; }
 
         public string Email { get; set; }
@@ -37,15 +38,16 @@ namespace Buk.Gaming.Models
         
         public bool DiscordIsConnected { get; set; }
 
-        public bool enableMoreDiscords { get; set; }
+        [JsonIgnore]
+        public bool EnableMoreDiscords { get; set; }
 
-        public ExtraDiscordUser[] moreDiscordUsers { get; set; }
+        public ExtraDiscordUser[] MoreDiscordUsers { get; set; }
 
-        public DateTimeOffset? DateRegistered { get; set; }
+        [JsonIgnore]
+        public DateTimeOffset DateRegistered { get; set; }
 
-        public DateTimeOffset? DateLastActive { get; set; }
-
-        public bool? AgreeToPrivacyPolicy { get; set; }
+        [JsonIgnore]
+        public DateTimeOffset DateLastActive { get; set; }
 
         public bool IsRegistered => DateRegistered != null;
     }

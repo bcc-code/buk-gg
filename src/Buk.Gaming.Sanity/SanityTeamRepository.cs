@@ -24,7 +24,7 @@ namespace Buk.Gaming.Sanity {
 
         public IMemoryCache Cache { get; }
 
-        private string PlayerQuery = "{_id, nickname, discordUser, discordId, email}";
+        private readonly string PlayerQuery = "{_id, nickname, discordUser, discordId, email}";
 
         private string MemberQuery {
             get {
@@ -181,7 +181,7 @@ namespace Buk.Gaming.Sanity {
 
                 foreach(int teamSize in teamSizes.Result)
                 {
-                    if (teamSize > (team.Players.Length + 1)) {
+                    if (teamSize > (team.Players.Count + 1)) {
                         return new SanityResult<Team>{
                             Item = null,
                             Success = false,
@@ -227,7 +227,7 @@ namespace Buk.Gaming.Sanity {
 
                 foreach(int teamSize in teamSizes.Result)
                 {
-                    if (teamSize > (team.Players.Length + 1)) {
+                    if (teamSize > (team.Players.Count + 1)) {
                         return new SanityResult<Team>{
                             Item = null,
                             Success = false,

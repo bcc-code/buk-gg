@@ -48,7 +48,7 @@ namespace Buk.Gaming.Sanity
 
             SanityTournament tournament = await Sanity.DocumentSet<SanityTournament>().GetAsync(tournamentId);
 
-            if (tournament == null || tournament.TeamSize.Min > team.Item.Players.Length + 1 || tournament.TeamSize.Max < team.Item.Players.Length + 1 || tournament.SignupType == "solo" || !tournament.RegistrationOpen) return null;
+            if (tournament == null || tournament.TeamSize.Min > team.Item.Players.Count + 1 || tournament.TeamSize.Max < team.Item.Players.Count + 1 || tournament.SignupType == "solo" || !tournament.RegistrationOpen) return null;
 
             if (!string.IsNullOrEmpty(tournament.Id))
             {

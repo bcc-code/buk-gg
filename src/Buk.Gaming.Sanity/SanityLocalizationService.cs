@@ -61,7 +61,7 @@ namespace Buk.Gaming.Sanity
                         }
                         currentNode = currentNode[parts[i]] as Dictionary<string, object>;
                     }
-                    currentNode[parts[parts.Length - 1]] = loc.Value;
+                    currentNode[parts[^1]] = loc.Value;
                 }
 
                 return root;
@@ -77,9 +77,11 @@ namespace Buk.Gaming.Sanity
             var localizationBlocks = await _sanity.DocumentSet<SanityLocalizationBlock>().Where(d => !d.IsDraft()).ToListAsync().ConfigureAwait(false);
             var pages = await _sanity.DocumentSet<SanityPage>().ToListAsync().ConfigureAwait(false);
 
-            var result = new Dictionary<string, Dictionary<string, string>>();
-            result["en"] = new Dictionary<string, string>();
-            result["no"] = new Dictionary<string, string>();
+            var result = new Dictionary<string, Dictionary<string, string>>
+            {
+                ["en"] = new Dictionary<string, string>(),
+                ["no"] = new Dictionary<string, string>()
+            };
 
 
             // Localization Strings //

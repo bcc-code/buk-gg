@@ -9,31 +9,28 @@ namespace Buk.Gaming.Repositories
     public interface IOrganizationRepository
     {
         // ORGANIZATIONS
-        Task<Organization[]> GetOrganizationsAsync();
+        Task<List<Organization>> GetAllOrganizationsAsync();
 
-		//Task<Organization> GetOrganizationAsync(string organizationId);
+		Task<List<Organization>> GetPlayerOrganizationsAsync(Player player, string role = "");
 				
         Task<Organization> SaveOrganizationAsync(Organization organization, Player player);
 
         Task<Organization> CreateOrganizationAsync(Organization organization, Player player);
 
-		Task<Organization[]> GetPlayerOrganizationsAsync(Player player, string role = "");
 
-        Task<string> UpdateImageAsync(User requester, string organizationId, System.IO.Stream image);
+        Task<Organization> UpdateImageAsync(User requester, string organizationId, System.IO.Stream image);
 
         // MEMBERS
-        Task<Member> GetMemberAsync(Player player);
+        Task<Organization> AddMemberAsync(User requester, string organizationId, Player player);
 
-        Task<Member> AddMemberAsync(User requester, string organizationId, Player player);
+        Task<Organization> UpdateMemberAsync(User requester, string organizationId, Member member);
 
-        Task<Member> UpdateMemberAsync(User requester, string organizationId, Member member);
+        Task<Organization> DeleteMemberAsync(User requester, string organizationId, string memberId);
 
-        Task<bool> DeleteMemberAsync(User requester, string organizationId, string memberId);
+        Task<List<Player>> SearchForPlayersAsync(User requester, string searchString);
 
-        Task<Player[]> SearchForPlayersAsync(User requester, string searchString);
+        Task<Organization> AddPendingMember(User requester, string organizationId, Player player, string type);
 
-        Task<bool> AddPendingMember(User requester, string organizationId, Player player, string type);
-
-        Task<bool> RemovePendingMember(User requester, string organizationId, string playerId);
+        Task<Organization> RemovePendingMember(User requester, string organizationId, string playerId);
     }
 }

@@ -27,7 +27,7 @@ namespace Buk.Gaming.Controllers
 
         public IDiscordProvider Discord { get; }
 
-        [Route("update")]
+        [Route("Update")]
         [HttpGet]
         public async Task<IActionResult> UpdateDiscordUser()
         {
@@ -39,7 +39,7 @@ namespace Buk.Gaming.Controllers
             return Ok(await Discord.SyncUserAsync(user));
         }
 
-        [Route("search/{searchString}")]
+        [Route("Search/{searchString}")]
         [HttpGet]
         public async Task<IActionResult> SearchForMembers(string searchString)
         {

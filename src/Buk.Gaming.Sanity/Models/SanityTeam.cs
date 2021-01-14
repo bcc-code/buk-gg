@@ -4,6 +4,7 @@ using Sanity.Linq.BlockContent;
 using Sanity.Linq.CommonTypes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Buk.Gaming.Sanity.Models {
@@ -24,9 +25,27 @@ namespace Buk.Gaming.Sanity.Models {
         [Include]
         public List<SanityReference<Player>> Players { get; set; }
 
-        public List<SanityMember> Members { get; set; }
-
         [Include]
         public SanityReference<SanityGame> Game { get; set; }
+
+        public Team ToTeam()
+        {
+            Game game = new Game
+            {
+                Name = Game.Value.Name,
+                Id = Game.Ref,
+                HasTeams = Game.Value.HasTeams,
+                Icon = Game.Value.Icon?.Asset.Value?.Url
+            };
+            return new Team()
+            {
+                Id = Id,
+                Name = Name,
+                Organization = Organization.Value.ToOrganization(),
+                Game = game,
+                Captain = Captain.Value,
+                Players = Players.Select(p => p.Value).ToList(),
+            };
+        }
     }
 }

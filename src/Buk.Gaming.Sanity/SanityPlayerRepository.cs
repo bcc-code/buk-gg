@@ -54,7 +54,7 @@ namespace Buk.Gaming.Sanity
         {
             user.Nickname = fromUser.Nickname;
             user.PhoneNumber = fromUser.PhoneNumber;
-            user.moreDiscordUsers = fromUser.moreDiscordUsers;
+            user.MoreDiscordUsers = fromUser.MoreDiscordUsers;
             user.DiscordId = fromUser.DiscordId;
             user.DiscordUser = fromUser.DiscordUser;
             
