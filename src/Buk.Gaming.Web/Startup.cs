@@ -21,6 +21,7 @@ using Buk.Gaming.Toornament;
 using Buk.Gaming.Repositories;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Net.Http.Headers;
 
 namespace Buk.Gaming
 {
@@ -45,6 +46,19 @@ namespace Buk.Gaming
             services.AddRazorPages();
 
             services.AddMvc().AddNewtonsoftJson();
+
+            services.AddCors(o =>
+            {
+                o.AddDefaultPolicy(b =>
+                {
+                    string[] headers = { HeaderNames.Authorization, HeaderNames.ContentType, HeaderNames.ContentLength };
+                    string[] methods = { HttpMethods.Get, HttpMethods.Post, HttpMethods.Patch, HttpMethods.Put, HttpMethods.Delete };
+                    string[] origins = { "http://localhost:8080" };
+                    b.WithHeaders(headers);
+                    b.WithMethods(methods);
+                    b.WithOrigins(origins);
+                });
+            });
 
             // Infrastructure
             services.AddMemoryCache();
@@ -179,6 +193,8 @@ namespace Buk.Gaming
                     new AcceptLanguageHeaderRequestCultureProvider()
                 }
             });
+
+            app.UseCors();
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
