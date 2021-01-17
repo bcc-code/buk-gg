@@ -2,35 +2,30 @@ using Buk.Gaming.Models;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
+using System.IO;
 
 namespace Buk.Gaming.Repositories
 {
     public interface IOrganizationRepository
     {
-        // ORGANIZATIONS
         Task<List<Organization>> GetAllOrganizationsAsync();
 
-		Task<List<Organization>> GetPlayerOrganizationsAsync(Player player, string role = "");
-				
-        Task<Organization> SaveOrganizationAsync(Organization organization, Player player);
+        Task<Organization> SaveOrganizationAsync(User requester, Organization organization);
 
-        Task<Organization> CreateOrganizationAsync(Organization organization, Player player);
+        Task<Organization> CreateOrganizationAsync(User requester, Organization organization);
 
+        Task<Organization> AddPlayerAsync(User requester, string organizationId, Player player);
 
-        Task<Organization> UpdateImageAsync(User requester, string organizationId, System.IO.Stream image);
-
-        // MEMBERS
-        Task<Organization> AddMemberAsync(User requester, string organizationId, Player player);
+        Task<Organization> RemovePlayerAsync(User requester, string organizationId, string playerId);
 
         Task<Organization> UpdateMemberAsync(User requester, string organizationId, Member member);
 
-        Task<Organization> DeleteMemberAsync(User requester, string organizationId, string memberId);
+        Task<Organization> AddPendingPlayerAsync(User requester, string organizationId, Player player);
+
+        Task<Organization> RemovePendingPlayerAsync(User requester, string organizationId, string playerId);
+
+        Task<Organization> UpdateImageAsync(User requester, string organizationId, Stream image);
 
         Task<List<Player>> SearchForPlayersAsync(User requester, string searchString);
-
-        Task<Organization> AddPendingMember(User requester, string organizationId, Player player, string type);
-
-        Task<Organization> RemovePendingMember(User requester, string organizationId, string playerId);
     }
 }

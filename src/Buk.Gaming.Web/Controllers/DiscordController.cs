@@ -27,18 +27,6 @@ namespace Buk.Gaming.Controllers
 
         public IDiscordProvider Discord { get; }
 
-        [Route("Update")]
-        [HttpGet]
-        public async Task<IActionResult> UpdateDiscordUser()
-        {
-            User user = await Session.GetCurrentUser();
-            if (user == null) {
-                return Unauthorized();
-            }
-
-            return Ok(await Discord.SyncUserAsync(user));
-        }
-
         [Route("Search/{searchString}")]
         [HttpGet]
         public async Task<IActionResult> SearchForMembers(string searchString)

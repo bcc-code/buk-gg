@@ -34,10 +34,10 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await OrganizationRepository.SaveOrganizationAsync(organization, player));
+            return Ok(await OrganizationRepository.SaveOrganizationAsync(player, organization));
         }
 
-        [Route("new")]
+        [Route("Create")]
         [HttpPut]
         public async Task<IActionResult> CreateOrganizationAsync(Organization organization)
         {
@@ -46,7 +46,7 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await OrganizationRepository.CreateOrganizationAsync(organization, user));
+            return Ok(await OrganizationRepository.CreateOrganizationAsync(user, organization));
         }
 
         [Route("")]
@@ -73,17 +73,6 @@ namespace Buk.Gaming.Web.Controllers
 
             return Ok(organizations.FirstOrDefault(o => o.Id == organizationId));
         }
-
-        [Route("player/{role}")]
-        [HttpPost]
-        public async Task<IActionResult> GetPlayerOrganizationsAsync(Player player, string role)
-        {
-            if (await Session.GetCurrentUser() == null)
-            {
-                return Unauthorized();
-            }
-            return Ok(await OrganizationRepository.GetPlayerOrganizationsAsync(player, role != "undefined" ? role : null));
-        }
         
         // MEMBERS
         // [Route("{organizationId}/members")]
@@ -97,7 +86,7 @@ namespace Buk.Gaming.Web.Controllers
         //     return Ok(await OrganizationRepository.GetMemberAsync(organizationId));
         // }
 
-        [Route("{organizationId}/members")]
+        [Route("{organizationId}/Members")]
         [HttpPut]
         public async Task<IActionResult> AddMemberAsync(string organizationId, Player player)
         {
@@ -106,7 +95,7 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            var result = await OrganizationRepository.AddMemberAsync(user, organizationId, player);
+            var result = await OrganizationRepository.AddPlayerAsync(user, organizationId, player);
             if (result != null)
             {
                 return Ok(result);
@@ -116,8 +105,8 @@ namespace Buk.Gaming.Web.Controllers
         }
 
 
-        [Route("{organizationId}/members/update")]
-        [HttpPut]
+        [Route("{organizationId}/Members")]
+        [HttpPatch]
         public async Task<IActionResult> UpdateMemberAsync(string organizationId, Member member) {
             User user = await Session.GetCurrentUser();
             if (user == null)
@@ -133,7 +122,7 @@ namespace Buk.Gaming.Web.Controllers
             }
         }
 
-        [Route("{organizationId}/members/{memberId}")]
+        [Route("{organizationId}/Members/{memberId}")]
         [HttpDelete]
         public async Task<IActionResult> DeleteMemberAsync(string organizationId, string memberId)
         {
@@ -142,22 +131,10 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await OrganizationRepository.DeleteMemberAsync(user, organizationId, memberId));
+            return Ok(await OrganizationRepository.RemovePlayerAsync(user, organizationId, memberId));
         }
 
-        [Route("{organizationId}/leave")]
-        [HttpDelete]
-        public async Task<IActionResult> LeaveOrganizationAsync(string organizationId)
-        {
-            User user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            return Ok(await OrganizationRepository.DeleteMemberAsync(user, organizationId, user.Id));
-        }
-
-        [Route("players/{searchString}")]
+        [Route("Players/{searchString}")]
         [HttpGet]
         public async Task<IActionResult> SearchForPlayersAsync(string searchString)
         {
@@ -171,19 +148,19 @@ namespace Buk.Gaming.Web.Controllers
 
         public class Base64Image
         {
-            public string image { get; set; }
+            public string Image { get; set; }
         }
         
-        [Route("{organizationId}/image")]
+        [Route("{organizationId}/Image")]
         [HttpPut]
         public async Task<IActionResult> UpdateImageAsync(string organizationId, Base64Image dataObject) 
         {
             User user = await Session.GetCurrentUser();
-            if (user == null || string.IsNullOrEmpty(dataObject.image)) {
+            if (user == null || string.IsNullOrEmpty(dataObject.Image)) {
                 return Unauthorized();
             }
             
-            byte[] bytes = Convert.FromBase64String(dataObject.image);
+            byte[] bytes = Convert.FromBase64String(dataObject.Image);
 
             System.IO.MemoryStream ms = new System.IO.MemoryStream(bytes);
 
@@ -201,7 +178,7 @@ namespace Buk.Gaming.Web.Controllers
         //     }
         // }
 
-        [Route("{organizationId}/pending/{type}")]
+        [Route("{organizationId}/Pending/{type}")]
         [HttpPut]
         public async Task<IActionResult> AddPendingMember(string organizationId, Player player, string type)
         {
@@ -210,7 +187,7 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await OrganizationRepository.AddPendingMember(user, organizationId, player, type));
+            return Ok(await OrganizationRepository.AddPendingPlayerAsync (user, organizationId, player));
         }
 
         [Route("{organizationId}/pending/{playerId}")]
@@ -222,7 +199,7 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await OrganizationRepository.RemovePendingMember(user, organizationId, playerId));
+            return Ok(await OrganizationRepository.RemovePendingPlayerAsync (user, organizationId, playerId));
         }
 
         // [Route("{organizationId}/teams")]

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Buk.Gaming.Sanity
 {
@@ -24,15 +25,6 @@ namespace Buk.Gaming.Sanity
         public SanityDataContext Sanity { get; }
 
         public IMemoryCache Cache { get; }
-
-        private int GetPermissionStrength(string role) 
-        {
-            if (role == "owner") return 4;
-            if (role == "officer") return 3;
-            if (role == "captain") return 2;
-            if (role == "member") return 1;
-            return 0;
-        }
 
         public async Task<List<Organization>> GetAllOrganizationsAsync()
         {
@@ -77,14 +69,14 @@ namespace Buk.Gaming.Sanity
             });
         }
 
-        public async Task<Organization> SaveOrganizationAsync(Organization organization, Player player)
+        public async Task<Organization> SaveOrganizationAsync(User requester, Organization organization)
         {
             if (!string.IsNullOrEmpty(organization.Id)) {
                 SanityOrganization org = (await GetOrganizationsAsync()).FirstOrDefault(o => o.Id == organization.Id);
 
-                var member = org.Members.Find(m => m.Player.Ref == player.Id);
+                var member = org?.Members.Find(m => m.Player.Ref == requester.Id);
 
-                if (member == null || this.GetPermissionStrength(member.Role) < 3)
+                if (member == null || member.RoleStrength() < 3)
                 {
                     throw new Exception("User does not have access");
                 }
@@ -98,10 +90,10 @@ namespace Buk.Gaming.Sanity
             throw new Exception("Organization Id is not valid");
         }
 
-        public async Task<Organization> CreateOrganizationAsync(Organization organization, Player player)
+        public async Task<Organization> CreateOrganizationAsync(User requester, Organization organization)
         {
             List<SanityOrganization> organizations = await GetOrganizationsAsync();
-            SanityOrganization existingOrganization = organizations.FirstOrDefault(o => o.Members.Find(m => m.Player.Ref == player.Id && m.Role == "owner") != null);
+            SanityOrganization existingOrganization = organizations.FirstOrDefault(o => o.Members.Find(m => m.Player.Ref == requester.Id && m.Role == "owner") != null);
 
             if (existingOrganization != null) return existingOrganization.ToOrganization();
             
@@ -116,7 +108,7 @@ namespace Buk.Gaming.Sanity
                     Members = new List<SanityMember>(),
                 };
 
-                newOrg.Members.Add(new SanityMember(player, "owner"));
+                newOrg.Members.Add(new SanityMember(requester, "owner"));
 
                 await Sanity.DocumentSet<SanityOrganization>().Create(newOrg).CommitAsync();
 
@@ -127,26 +119,17 @@ namespace Buk.Gaming.Sanity
             return organization;
         }
 
-        public async Task<List<Organization>> GetPlayerOrganizationsAsync(Player player, string role = "")
-        {
-            List<SanityOrganization> organizations = await GetOrganizationsAsync();
-
-            return organizations.Where(o => o.Members.FirstOrDefault(m => m.Player.Ref == player.Id) != null).Select(o => o.ToOrganization()).ToList();
-        }
-
         public async Task<List<Player>> SearchForPlayersAsync(User requester, string searchString)
         {
             if (searchString.Length < 2) return null;
 
-            string query = $"*[_type == 'player' && discordIsConnected && ((email == '{searchString}') || (location == '{requester.Location}' && (name match '*{searchString}*' || nickname match '*{searchString}*' || discordUser match '*{searchString}*')))]";
+            List<Player> result = (await GetPlayersAsync()).Where(p => p.Email == searchString || (p.Location == requester.Location && (p.Name.Contains(searchString) || p.DiscordUser.Contains(searchString)))).ToList();
 
-            var searchResult = await Sanity.Client.FetchAsync<List<Player>>(query);
-
-            return searchResult.Result.ToList();
+            return result;
         }
 
         // MEMBERS
-        public async Task<Organization> AddMemberAsync(User requester, string organizationId, Player player)
+        public async Task<Organization> AddPlayerAsync(User requester, string organizationId, Player player)
         {
             List<SanityOrganization> organizations = await GetOrganizationsAsync();
 
@@ -155,6 +138,12 @@ namespace Buk.Gaming.Sanity
             if (organization == null)
             {
                 throw new Exception("Organization not found");
+            }
+
+            SanityPendingMember pending = organization.Pending.FirstOrDefault(p => p.Player.Ref == player.Id);
+
+            if (pending != null) {
+                organization.Pending.Remove(pending);
             }
 
             organization.Members.Add(new SanityMember(player, "member"));
@@ -182,11 +171,11 @@ namespace Buk.Gaming.Sanity
             return null;
         }
 
-        public async Task<Organization> DeleteMemberAsync (User requester, string organizationId, string memberId)
+        public async Task<Organization> RemovePlayerAsync (User requester, string organizationId, string playerId)
         {
             SanityOrganization organization = (await GetOrganizationsAsync()).FirstOrDefault(o => o.Id == organizationId && o.Members.Where(m => m.RoleStrength() >= 3 && m.Player.Ref == requester.Id).ToList().Count > 0);
 
-            SanityMember member = organization?.Members.FirstOrDefault(m => m.Player.Ref == memberId);
+            SanityMember member = organization?.Members.FirstOrDefault(m => m.Player.Ref == playerId);
 
             if (member != null)
             {
@@ -199,7 +188,7 @@ namespace Buk.Gaming.Sanity
             throw new Exception("Member not found or user has no access");
         }
 
-        public async Task<Organization> AddPendingMember (User requester, string organizationId, Player player, string type)
+        public async Task<Organization> AddPendingPlayerAsync (User requester, string organizationId, Player player)
         {
             SanityOrganization organization = (await GetOrganizationsAsync()).FirstOrDefault(o => o.Id == organizationId);
 
@@ -214,7 +203,7 @@ namespace Buk.Gaming.Sanity
             throw new Exception();
         }
 
-        public async Task<Organization> AcceptPendingMember (User requester, string organizationId, string playerId)
+        public async Task<Organization> RemovePendingPlayerAsync (User requester, string organizationId, string playerId)
         {
             SanityOrganization organization = (await GetOrganizationsAsync()).FirstOrDefault(o => o.Id == organizationId && o.HasEditAccess(requester));
 
@@ -239,25 +228,8 @@ namespace Buk.Gaming.Sanity
             return organization.ToOrganization();
         }
 
-        public async Task<Organization> RemovePendingMember (User requester, string organizationId, string playerId)
-        {
-            SanityOrganization organization = (await GetOrganizationsAsync()).FirstOrDefault(o => o.Id == organizationId);
-
-            SanityPendingMember member = organization.Pending.Find(m => m.Player.Ref == playerId);
-
-            if (member != null && organization != null && (member?.Player.Ref == requester.Id || organization.HasEditAccess(requester)))
-            {
-                organization.Pending.Remove(member);
-
-                await Sanity.DocumentSet<SanityOrganization>().Update(organization).CommitAsync();
-
-                return organization.ToOrganization();
-            }
-            throw new Exception();
-        }
-
         // IMAGE
-        public async Task<Organization> UpdateImageAsync(User requester, string organizationId, System.IO.Stream image)
+        public async Task<Organization> UpdateImageAsync(User requester, string organizationId, Stream image)
         {
 
             SanityOrganization organization = (await GetOrganizationsAsync()).FirstOrDefault(o => o.Id == organizationId && o.HasEditAccess(requester));
