@@ -37,6 +37,19 @@ namespace Buk.Gaming.Web.Controllers
             return Ok(await OrganizationRepository.SaveOrganizationAsync(player, organization));
         }
 
+        [Route("Mine")]
+        [HttpGet]
+        public async Task<IActionResult> GetMyOrganizationsAsync()
+        {
+            var player = await Session.GetCurrentUser();
+            if (player == null)
+            {
+                return Unauthorized();
+            }
+            List<Organization> organizations = await OrganizationRepository.GetAllOrganizationsAsync();
+            return Ok(organizations.Where(o => o.Members.FirstOrDefault(m => m.Player.Id == player.Id) != null));
+        }
+
         [Route("Create")]
         [HttpPut]
         public async Task<IActionResult> CreateOrganizationAsync(Organization organization)
@@ -190,7 +203,7 @@ namespace Buk.Gaming.Web.Controllers
             return Ok(await OrganizationRepository.AddPendingPlayerAsync (user, organizationId, player));
         }
 
-        [Route("{organizationId}/pending/{playerId}")]
+        [Route("{organizationId}/Pending/{playerId}")]
         [HttpDelete]
         public async Task<IActionResult> RemovePendingMember(string organizationId, string playerId)
         {
