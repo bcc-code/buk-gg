@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Buk.Gaming.Controllers
 {
     [Authorize]
-    [Route("api/session")]
+    [Route("api/Session")]
     [ApiController]
     public class SessionController : ControllerBase
     {
@@ -22,18 +22,14 @@ namespace Buk.Gaming.Controllers
             this._players = players;
         }
 
-        [Route("currentsession")]
+        [Route("")]
         [HttpGet]
-        public async Task<SessionDto> GetCurrentSession()
+        public async Task<IActionResult> GetCurrentSession()
         {
-            return new SessionDto
-            {
-                CurrentUser = await _sessionProvider.GetCurrentUser(),
-                AuthenticatedUser = await _sessionProvider.GetAuthenticatedUser()
-            };
+            return Ok(await _sessionProvider.GetCurrentUser());
         }
 
-        [Route("currentuser")]
+        [Route("")]
         [HttpPut]
         public async Task<User> UpdateCurrentUser(Player player)
         {
@@ -43,11 +39,4 @@ namespace Buk.Gaming.Controllers
             return user;
         }
     }
-
-    public class SessionDto
-    {
-        public User CurrentUser { get; set; }
-        public User AuthenticatedUser { get; set; }
-    }
-
 }

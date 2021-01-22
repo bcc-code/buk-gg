@@ -4,10 +4,15 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <TypeScriptToolsVersion>4.0</TypeScriptToolsVersion>
     <UserSecretsId>407c48ec-cfa8-4fba-8a30-e965145a881a</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Compile Remove="wwwroot\**" />
+    <Content Remove="wwwroot\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
+    <None Remove="wwwroot\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,6 +21,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.12" />
     <PackageReference Include="ValueInjecter" Version="3.1.3" />
   </ItemGroup>
 
