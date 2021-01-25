@@ -51,7 +51,7 @@ namespace Buk.Gaming.Sanity {
 
         public async Task<List<Team>> GetMyTeamsAsync(string playerId) 
         {
-            List<Team> teams = (await GetTeamsAsync()).Where(t => t.Captain.Id == playerId || t.Players.FirstOrDefault(p => p.Id == playerId) != null).ToList();
+            List<Team> teams = (await GetTeamsAsync()).Where(t => t.Captain?.Id == playerId || t.Players?.FirstOrDefault(p => p.Id == playerId) != null).ToList();
 
             return teams;
         }
