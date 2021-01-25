@@ -18,8 +18,8 @@ namespace Buk.Gaming.Controllers
 
         public SessionController(ISessionProvider sessionProvider, PlayerService players)
         {
-            this._sessionProvider = sessionProvider;
-            this._players = players;
+            _sessionProvider = sessionProvider;
+            _players = players;
         }
 
         [Route("")]

@@ -31,76 +31,36 @@ namespace Buk.Gaming.Sanity {
                 return $"'members': members[]{{..., player->{this.PlayerQuery}}}";
             }
         }
-        private string TeamQuery {
-            get {
-                return $"{{..., captain->{this.PlayerQuery}, organization->{{..., 'image': image.asset->url, {this.MemberQuery}}}, game->{{..., 'icon': icon.asset->url}}, 'players': players[]->{this.PlayerQuery}}}"; 
-            }
-        }
+        private string TeamQuery => $"{{..., captain->{this.PlayerQuery}, organization->{{..., 'image': image.asset->url, {this.MemberQuery}}}, game->{{..., 'icon': icon.asset->url}}, 'players': players[]->{this.PlayerQuery}}}";
 
-        private void UpdateTeamCache(Team team, bool delete = false)
+        public async Task<Team> GetTeamAsync(string teamId) 
         {
-            var teams = Cache.Get<Team[]>("Sanity_Teams");
-            if (teams?.Length > 0) {
-                var t = teams.FirstOrDefault(t => t.Id == team.Id);
-                if (t != null) {
-                    if (delete) {
-                        teams = teams.Where(team => team.Id != t.Id).ToArray();
-                    } else {
-                        t.Name = team.Name;
-                        t.Players = team.Players;
-                        t.Organization = team.Organization;
-                    }
-                } else {
-                    teams.Append<Team>(team);
-                }
-                Cache.Set<Team[]>("Sanity_Teams", teams, TimeSpan.FromSeconds(60));
-            }
+            return (await GetTeamsAsync()).FirstOrDefault(t => t.Id == teamId);
         }
 
-        public Task<Team> GetTeamAsync(string teamId) 
-        {
-            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
-            return Cache.GetOrCreateAsync("Sanity_Team_" + teamId + "_" + lang, async (c) =>
-            {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
-                string query = $"*[_type == 'team' && _id == '{teamId}' && !(_id in path('drafts.**'))][0]{this.TeamQuery}";
-                var result = await Sanity.Client.FetchAsync<Team>(query);
-                return result.Result;
-            });
-        }
-
-        public Task<Team[]> GetTeamsAsync()
+        public Task<List<Team>> GetTeamsAsync()
         {
             return Cache.GetOrCreateAsync("Sanity_Teams", async (c) =>
             {
                 c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60);
                 string query = $"*[_type == 'team' && !(_id in path('drafts.**'))]{this.TeamQuery}";
-                var result = await Sanity.Client.FetchAsync<Team[]>(query);
+                var result = await Sanity.Client.FetchAsync<List<Team>>(query);
                 return result.Result;
             });
         }
 
-        public Task<Team[]> GetMyTeamsAsync(string playerId) 
+        public async Task<List<Team>> GetMyTeamsAsync(string playerId) 
         {
-            return Cache.GetOrCreateAsync("Sanity_Teams_" + playerId, async (c) =>
-            {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(20);
-                string query = $"*[_type == 'team' && !(_id in path('drafts.**')) && ('{playerId}' == captain._ref || '{playerId}' in players[]._ref || '{playerId}' in organization->members[role in ['owner', 'officer']].player._ref)]{this.TeamQuery}";
-                var result = await Sanity.Client.FetchAsync<Team[]>(query);
-                return result.Result;
-            });
+            List<Team> teams = (await GetTeamsAsync()).Where(t => t.Captain.Id == playerId || t.Players.FirstOrDefault(p => p.Id == playerId) != null).ToList();
+
+            return teams;
         }
 
-        public Task<Team[]> GetTeamsInGameAsync(string gameId)
+        public async Task<List<Team>> GetTeamsInGameAsync(string gameId)
         {
-            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
-            return Cache.GetOrCreateAsync("Sanity_Game_" + gameId + "_Teams_" + lang, async (c) =>
-            {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
-                string query = $"*[_type == 'team' && references('{gameId}') && !(_id in path('drafts.**'))]{this.TeamQuery}";
-                var result = await Sanity.Client.FetchAsync<Team[]>(query);
-                return result.Result;
-            });
+            List<Team> teams = (await GetTeamsAsync()).Where(t => t.Game.Id == gameId).ToList();
+
+            return teams;
         }
 
         public async Task<Team> AddTeamAsync(User requester, Team team)
@@ -131,14 +91,12 @@ namespace Buk.Gaming.Sanity {
 
                     await Sanity.DocumentSet<SanityTeam>().Create(sTeam).CommitAsync();
 
-                    UpdateTeamCache(team);
+                    (await GetTeamsAsync()).Add(team);
 
                     return team;
-                } else {
-                    return new Team();
                 }
             }
-            return new Team();
+            return null;
         }
 
         public class TournamentParticipant {
@@ -157,6 +115,8 @@ namespace Buk.Gaming.Sanity {
                 Reason = "notFound"
             };
 
+            Team cachedTeam = (await GetTeamsAsync()).FirstOrDefault(t => t.Id == team.Id);
+
             if (sTeam.Captain?.Ref == requester.Id)
             {
                 List<SanityReference<Player>> pList = new List<SanityReference<Player>>();
@@ -170,14 +130,17 @@ namespace Buk.Gaming.Sanity {
                 }
 
                 sTeam.Name = team.Name;
+                cachedTeam.Name = team.Name;
 
+                cachedTeam.Captain = team.Captain;
                 sTeam.Captain = new SanityReference<Player>() {
                     Ref = team.Captain.Id,
                 };
 
+                cachedTeam.Players = team.Players;
                 sTeam.Players = pList;
 
-                var teamSizes = await Sanity.Client.FetchAsync<List<int>>($"*[_type == 'tournament' && count(teams) > 0 && '{team.Id}' in teams[].team->_id].teamSize.min"); 
+                var teamSizes = await Sanity.Client.FetchAsync<List<int>>($"*[_type == 'tournament' && count(teams) > 0 && '{team.Id}' in teams[].team->_id].teamSize.min");
 
                 foreach(int teamSize in teamSizes.Result)
                 {
@@ -190,8 +153,6 @@ namespace Buk.Gaming.Sanity {
                     }
                 }
                 await Sanity.DocumentSet<SanityTeam>().Update(sTeam).CommitAsync();
-
-                UpdateTeamCache(team);
 
                 return new SanityResult<Team>{
                     Item = team,
@@ -237,8 +198,6 @@ namespace Buk.Gaming.Sanity {
                 }
                 await Sanity.DocumentSet<SanityTeam>().Update(sTeam).CommitAsync();
 
-                UpdateTeamCache(team);
-
                 return new SanityResult<Team>{
                     Item = team,
                     Success = true
@@ -261,23 +220,21 @@ namespace Buk.Gaming.Sanity {
                 // if (references.Result?.Count > 0) return false;
                 await Sanity.DocumentSet<SanityTeam>().DeleteById(team.Id).CommitAsync();
 
-                UpdateTeamCache(team, true);
-
                 return true;
             }
             return false;
         }
 
-        public Task<Game[]> GetGamesAsync()
+        public Task<List<Game>> GetGamesAsync()
         {
             var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
             return Cache.GetOrCreateAsync("Sanity_Games_" + lang, async (c) =>
             {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
+                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60);
 
                 var result = await Sanity.DocumentSet<SanityGame>().ToListAsync();
 
-                return result.Select(g => g.ToGame()).ToArray();
+                return result.Select(g => g.ToGame()).ToList();
             });
         }
     }

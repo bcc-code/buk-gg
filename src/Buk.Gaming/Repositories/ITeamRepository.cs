@@ -11,11 +11,11 @@ namespace Buk.Gaming.Repositories
         // TEAMS
         Task<Team> GetTeamAsync(string teamId);
 
-        Task<Team[]> GetTeamsAsync();
+        Task<List<Team>> GetTeamsAsync();
 
-        Task<Team[]> GetMyTeamsAsync(string playerId);
+        Task<List<Team>> GetMyTeamsAsync(string playerId);
 
-        Task<Team[]> GetTeamsInGameAsync(string gameId);
+        Task<List<Team>> GetTeamsInGameAsync(string gameId);
 
         Task<Team> AddTeamAsync(User requester, Team team);
 
@@ -23,7 +23,7 @@ namespace Buk.Gaming.Repositories
 
         Task<bool> DeleteTeamAsync(User requester, Team team);
 
-        Task<Game[]> GetGamesAsync();
+        Task<List<Game>> GetGamesAsync();
 
         // // MEMBERS
         // Task<Member> GetMemberAsync(Player player);
