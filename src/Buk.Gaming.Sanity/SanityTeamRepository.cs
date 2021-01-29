@@ -123,9 +123,13 @@ namespace Buk.Gaming.Sanity {
 
                 foreach(Player player in team.Players) {
                     if (player.Id != team.Captain.Id && pList.Find(p => p.Ref == player.Id) == null) {
-                        pList.Add(new SanityReference<Player>() {
-                            Ref = player.Id,
-                        });
+                        if (pList.FirstOrDefault(p => p.Ref == player.Id) == null)
+                        {
+                            pList.Add(new SanityReference<Player>()
+                            {
+                                Ref = player.Id,
+                            });
+                        }
                     }
                 }
 

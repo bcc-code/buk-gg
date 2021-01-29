@@ -104,7 +104,21 @@ namespace Buk.Gaming.Web.Controllers
             {
                 return Unauthorized();
             }
+
             return Ok(await TeamRepository.UpdateTeamAsync(user, team));
+        }
+
+        [Route("{teamId}/TeamMembers")]
+        [HttpPatch]
+        public async Task<IActionResult> SetTeamMembers(string teamId, [FromBody] List<Player> players)
+        {
+            User user = await Session.GetCurrentUser();
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            return Ok();
         }
 
         [Route("delete")]

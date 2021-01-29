@@ -39,7 +39,7 @@ namespace Buk.Gaming.Models
 
         public Game Game { get; set; }
 
-        public List<Team> Teams { get; set; }
+        public List<Team> Teams { get; set; } = new List<Team>();
 
         public string SignupType { get; set; }
 
@@ -51,7 +51,7 @@ namespace Buk.Gaming.Models
 
         public TeamSize TeamSize { get; set; }
 
-        public List<Contact> Contacts { get; set; }
+        public List<Contact> Contacts { get; set; } = new List<Contact>();
                 
         public bool LiveChat { get; set; }
     }
@@ -59,9 +59,9 @@ namespace Buk.Gaming.Models
     public class TournamentAdminInfo : TournamentInfo {
         public Player Responsible { get; set; }
 
-        public List<Participant<Player>> SoloPlayers { get; set; }
+        public List<Participant<Player>> SoloPlayers { get; set; } = new List<Participant<Player>>();
 
-        public List<Participant<Team>> ParticipantTeams { get; set; }
+        public List<Participant<Team>> ParticipantTeams { get; set; } = new List<Participant<Team>>();
     }
 
     public class TeamSize
