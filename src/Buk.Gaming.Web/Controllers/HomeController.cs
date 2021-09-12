@@ -10,7 +10,7 @@ namespace Buk.Gaming.Controllers
 
         public IActionResult Index()
         {
-            return File("~/index.html", "text/html");
+            return Redirect("https://buk.gg");
         }
 
         [Route("api/version")]
