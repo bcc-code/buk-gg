@@ -196,13 +196,12 @@ namespace Buk.Gaming
 
             app.UseCors();
 
+            app.UseRouting();
+            
             app.UseAuthentication();
             app.UseAuthorization();
-            
-            app.UseEndpoints(endpoints => {
-                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapFallbackToController("Index", "Home");
-            });
+
+            app.UseEndpoints(e => e.MapControllers());
         }
     }
 }
