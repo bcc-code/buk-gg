@@ -105,15 +105,11 @@ namespace Buk.Gaming.Sanity {
             public int MinPlayers { get; }
         }
 
-        public async Task<SanityResult<Team>> UpdateTeamAsync(User requester, Team team)
+        public async Task<Team> UpdateTeamAsync(User requester, Team team)
         {
             SanityTeam sTeam = await Sanity.DocumentSet<SanityTeam>().GetAsync(team.Id);
 
-            if (sTeam == null) return new SanityResult<Team>{
-                Item = null,
-                Success = false,
-                Reason = "notFound"
-            };
+            if (sTeam == null) return null;
 
             Team cachedTeam = (await GetTeamsAsync()).FirstOrDefault(t => t.Id == team.Id);
 
@@ -149,19 +145,12 @@ namespace Buk.Gaming.Sanity {
                 foreach(int teamSize in teamSizes.Result)
                 {
                     if (teamSize > (team.Players.Count + 1)) {
-                        return new SanityResult<Team>{
-                            Item = null,
-                            Success = false,
-                            Reason = "signedUpForTournament"
-                        };
+                        return null;
                     }
                 }
                 await Sanity.DocumentSet<SanityTeam>().Update(sTeam).CommitAsync();
 
-                return new SanityResult<Team>{
-                    Item = team,
-                    Success = true
-                };
+                return team;
             }
 
             // CHECKING IF PLAYER HAS PERMISSIONS IN ORGANIZATION
@@ -193,25 +182,14 @@ namespace Buk.Gaming.Sanity {
                 foreach(int teamSize in teamSizes.Result)
                 {
                     if (teamSize > (team.Players.Count + 1)) {
-                        return new SanityResult<Team>{
-                            Item = null,
-                            Success = false,
-                            Reason = "signedUpForTournament"
-                        };
+                        return null;
                     }
                 }
                 await Sanity.DocumentSet<SanityTeam>().Update(sTeam).CommitAsync();
 
-                return new SanityResult<Team>{
-                    Item = team,
-                    Success = true
-                };
+                return team;
             }
-            return new SanityResult<Team>{
-                Item = null,
-                Success = false,
-                Reason = "noPermissions"
-            };
+            return null;
         }
 
         public async Task<bool> DeleteTeamAsync(User requester, Team team)

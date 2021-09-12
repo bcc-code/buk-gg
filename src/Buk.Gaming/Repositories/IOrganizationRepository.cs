@@ -14,7 +14,7 @@ namespace Buk.Gaming.Repositories
 
         Task<Organization> CreateOrganizationAsync(User requester, Organization organization);
 
-        Task<Organization> AddPlayerAsync(User requester, string organizationId, Player player);
+        Task<Organization> AddPlayerAsync(User requester, string organizationId, string id);
 
         Task<Organization> RemovePlayerAsync(User requester, string organizationId, string playerId);
 

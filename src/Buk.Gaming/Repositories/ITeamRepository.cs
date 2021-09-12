@@ -13,13 +13,11 @@ namespace Buk.Gaming.Repositories
 
         Task<List<Team>> GetTeamsAsync();
 
-        Task<List<Team>> GetMyTeamsAsync(string playerId);
-
         Task<List<Team>> GetTeamsInGameAsync(string gameId);
 
         Task<Team> AddTeamAsync(User requester, Team team);
 
-        Task<SanityResult<Team>> UpdateTeamAsync(User requester, Team team);
+        Task<Team> UpdateTeamAsync(User requester, Team team);
 
         Task<bool> DeleteTeamAsync(User requester, Team team);
 

@@ -129,9 +129,11 @@ namespace Buk.Gaming.Sanity
         }
 
         // MEMBERS
-        public async Task<Organization> AddPlayerAsync(User requester, string organizationId, Player player)
+        public async Task<Organization> AddPlayerAsync(User requester, string organizationId, string id)
         {
             List<SanityOrganization> organizations = await GetOrganizationsAsync();
+
+            Player player = (await GetPlayersAsync()).FirstOrDefault(p => p.Id == id || p.DiscordId == id);
 
             SanityOrganization organization = organizations.FirstOrDefault(o => o.Id == organizationId);
 

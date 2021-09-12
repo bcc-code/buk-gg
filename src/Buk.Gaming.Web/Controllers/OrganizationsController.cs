@@ -99,16 +99,22 @@ namespace Buk.Gaming.Web.Controllers
         //     return Ok(await OrganizationRepository.GetMemberAsync(organizationId));
         // }
 
+        public class AddMember
+        {
+            public string Id { get; set; }
+        }
+
         [Route("{organizationId}/Members")]
         [HttpPut]
-        public async Task<IActionResult> AddMemberAsync(string organizationId, Player player)
+        public async Task<IActionResult> AddMemberAsync(string organizationId, [FromBody] AddMember member)
         {
             User user = await Session.GetCurrentUser();
             if (user == null)
             {
                 return Unauthorized();
             }
-            var result = await OrganizationRepository.AddPlayerAsync(user, organizationId, player);
+
+            var result = await OrganizationRepository.AddPlayerAsync(user, organizationId, member.Id);
             if (result != null)
             {
                 return Ok(result);
@@ -193,7 +199,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("{organizationId}/Pending/{type}")]
         [HttpPut]
-        public async Task<IActionResult> AddPendingMember(string organizationId, Player player, string type)
+        public async Task<IActionResult> AddPendingMember(string organizationId, Player player)
         {
             User user = await Session.GetCurrentUser();
             if (user == null)

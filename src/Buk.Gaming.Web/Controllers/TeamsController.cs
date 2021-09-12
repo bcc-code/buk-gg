@@ -56,19 +56,7 @@ namespace Buk.Gaming.Web.Controllers
 
             var orgTeams = teams?.Where(t => t.Organization.Id == organizationId).ToArray();
 
-            return Ok(orgTeams != null ? orgTeams : new Team[0]);
-        }
-
-        [Route("mine")]
-        [HttpGet]
-        public async Task<IActionResult> GetMyTeamsAsync()
-        {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            return Ok(await TeamRepository.GetMyTeamsAsync(user.Id));
+            return Ok(orgTeams ?? default);
         }
 
         [Route("game/{gameId}")]
@@ -106,19 +94,6 @@ namespace Buk.Gaming.Web.Controllers
             }
 
             return Ok(await TeamRepository.UpdateTeamAsync(user, team));
-        }
-
-        [Route("{teamId}/TeamMembers")]
-        [HttpPatch]
-        public async Task<IActionResult> SetTeamMembers(string teamId, [FromBody] List<Player> players)
-        {
-            User user = await Session.GetCurrentUser();
-
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            return Ok();
         }
 
         [Route("delete")]

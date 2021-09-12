@@ -53,7 +53,7 @@ namespace Buk.Gaming
                 {
                     string[] headers = { HeaderNames.Authorization, HeaderNames.ContentType, HeaderNames.ContentLength };
                     string[] methods = { HttpMethods.Get, HttpMethods.Post, HttpMethods.Patch, HttpMethods.Put, HttpMethods.Delete };
-                    string[] origins = { "http://localhost:8080" };
+                    string[] origins = { "http://localhost:8080", "https://buk.gg", "https://dev.buk.gg" };
                     b.WithHeaders(headers);
                     b.WithMethods(methods);
                     b.WithOrigins(origins);

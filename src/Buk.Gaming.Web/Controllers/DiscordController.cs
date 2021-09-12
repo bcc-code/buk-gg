@@ -36,7 +36,10 @@ namespace Buk.Gaming.Controllers
             {
                 return Unauthorized();
             }
-            return Ok(await Discord.SearchForMembersAsync(searchString));
+
+            var result = await Discord.SearchForMembersAsync(searchString);
+
+            return Ok(result);
         }
     }
 }

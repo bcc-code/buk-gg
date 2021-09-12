@@ -82,7 +82,7 @@ namespace Buk.Gaming.Web.Providers
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
             var response = await (await client.GetAsync($"{basePath}/Search/{searchString}")).Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<List<DiscordMember>>(response);
+            return JsonConvert.DeserializeObject<List<DiscordMember>>(JsonConvert.DeserializeObject<string>(response));
         }
     }
 }

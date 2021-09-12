@@ -41,7 +41,7 @@ namespace Buk.Gaming.Web.Providers
             Administrators = configuration["Authorization:Admins"].Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
         }
 
-        private static ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         public async Task<User> GetAuthenticatedUser()
         {
