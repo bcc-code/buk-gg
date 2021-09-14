@@ -33,7 +33,7 @@ namespace Buk.Gaming.Sanity
 
         private Task<List<Player>> GetPlayersAsync()
         {
-            return Sanity.DocumentSet<Player>().Where(p => p.DateLastActive > DateTime.Now.AddMonths(-7)).ToListAsync();
+            return Sanity.DocumentSet<Player>().Where(p => p.DiscordId != null).ToListAsync();
         }
 
         private Task<List<SanityOrganization>> GetOrganizationsAsync()
