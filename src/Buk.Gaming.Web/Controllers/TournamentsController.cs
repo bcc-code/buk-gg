@@ -18,18 +18,22 @@ namespace Buk.Gaming.Web.Controllers
     [ApiController]
     public class TournamentsController : ControllerBase
     {
-        public TournamentsController(ToornamentClient toornament, ITournamentRepository tournamentInfo, ISessionProvider session)
+        public TournamentsController(ToornamentClient toornament, ITournamentRepository tournamentInfo, ISessionProvider session, ITeamRepository teams)
         {
             Toornament = toornament;
             TournamentInfo = tournamentInfo;
             Session = session;
+            _teams = teams;
         }
 
         public ToornamentClient Toornament { get; }
         public ITournamentRepository TournamentInfo { get; }
         public ISessionProvider Session { get; }
+        private readonly ITeamRepository _teams;
+        private readonly IOrganizationRepository _organizations;
 
         [Route("")]
+        [HttpGet]
         public async Task<IActionResult> GetTournamentsAsync()
         {
             if (await Session.GetCurrentUser() == null)
@@ -41,6 +45,7 @@ namespace Buk.Gaming.Web.Controllers
         }
 
         [Route("{tournamentId}")]
+        [HttpGet]
         public async Task<IActionResult> GetTournamentsAsync(string tournamentId)
         {
             if (await Session.GetCurrentUser() == null)
@@ -52,16 +57,29 @@ namespace Buk.Gaming.Web.Controllers
             return Ok(tournament);
         }
 
+        public class RegisterTeamRequest
+        {
+            public string TeamId { get; set; }
+        }
+
         [Route("{tournamentId}/teams")]
         [HttpPut]
-        public async Task<IActionResult> AddTeamToTournamentAsync(string tournamentId, Participant<Team> addTeam)
+        public async Task<IActionResult> AddTeamToTournamentAsync(string tournamentId, [FromBody] RegisterTeamRequest request)
         {
-            if (await Session.GetCurrentUser() == null)
+            var user = await Session.GetCurrentUser();
+            if (user == null)
             {
                 return Unauthorized();
             }
+            var team = (await _teams.GetTeamsAsync()).FirstOrDefault(i => i.Id == request.TeamId);
+
+            if (team.CaptainId != user.Id)
+            {
+                var organization = await _organizations
+            }
+
             var tournament = (await TournamentInfo.GetAllTournamentsAsync()).FirstOrDefault(t => t.Id == tournamentId || t.Slug == tournamentId || t.ToornamentId == tournamentId);
-            Toornament.Participant team = new Toornament.Participant{Identifier = addTeam.Item.Id, Name = addTeam.Item.Name};
+            Toornament.Participant participant = new Toornament.Participant{Identifier = request.TeamId};
             if (!string.IsNullOrEmpty(tournament?.ToornamentId)) 
             {
                 team = await Toornament.Organizer.AddParticipantAsync(tournament.ToornamentId, team);
@@ -70,9 +88,14 @@ namespace Buk.Gaming.Web.Controllers
             return Ok(await TournamentInfo.AddTeamToTournamentAsync(tournamentId, participant));
         }
 
+        public class RegisterPlayerRequest
+        {
+            public string PlayerId { get; set; }
+        }
+
         [Route("{tournamentId}/players")]
         [HttpPut]
-        public async Task<IActionResult> AddPlayerToTournamentAsync(string tournamentId, Participant<Player> addPlayer)
+        public async Task<IActionResult> AddPlayerToTournamentAsync(string tournamentId, [FromBody] RegisterPlayerRequest request)
         {
             var user = await Session.GetCurrentUser();
             if (user == null)

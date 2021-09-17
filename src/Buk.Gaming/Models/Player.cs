@@ -50,6 +50,24 @@ namespace Buk.Gaming.Models
         public DateTimeOffset DateLastActive { get; set; }
 
         public bool IsRegistered => DateRegistered != null;
+
+        public Public View() => new Public(this);
+
+        public class Public
+        {
+            public Public(Player player)
+            {
+                Id = player.Id;
+                DiscordTag = player.DiscordUser;
+                DisplayName = player.DisplayName;
+            }
+
+            public string Id { get; set; }
+
+            public string DiscordTag { get; set; }
+
+            public string DisplayName { get; set; }
+        }
     }
 
     public class ExtraDiscordUser

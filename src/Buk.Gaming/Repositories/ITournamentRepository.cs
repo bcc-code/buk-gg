@@ -10,11 +10,11 @@ namespace Buk.Gaming.Repositories
     {
         Task<List<TournamentInfo>> GetAllTournamentsAsync();
 
-        Task<Participant<Team>> AddTeamToTournamentAsync(string tournamentId, Participant<Team> team);
+        Task AddTeamToTournamentAsync(string tournamentId, Participant team);
 
         Task<Team[]> GetEligibleTeamsAsync(string gameId, string playerId);
 
-        Task<Participant<Player>> AddPlayerToTournamentAsync(string tournamentId, Participant<Player> player);
+        Task AddPlayerToTournamentAsync(string tournamentId, Participant player);
 
         Task<TournamentAdminInfo> GetAdminInfoAsync(User requester, string tournamentId);
     }

@@ -96,10 +96,12 @@ namespace Buk.Gaming.Models
         public string Icon { get; set; }
     }
 
-    public class Participant<T> {
+    public class Participant {
+        public string Type { get; set; }
+
         public List<string> Information { get; set; }
 
-        public T Item { get; set; }
+        public string Id { get; set; }
 
         public string ToornamentId { get; set; }
     }
