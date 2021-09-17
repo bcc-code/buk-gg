@@ -37,7 +37,7 @@ namespace Buk.Gaming.Web.Controllers
 
             var teams = await TeamRepository.GetTeamsAsync();
 
-            var myTeams = teams.Where(t => t.Organization.IsPublic == true).ToArray();
+            var myTeams = teams.Where(t => t.Players?.Any(i => i.Id == user.Id) == true || t.Captain?.Id == user.Id).ToArray();
 
             return Ok(myTeams);
         }
