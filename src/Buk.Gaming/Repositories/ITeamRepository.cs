@@ -19,7 +19,7 @@ namespace Buk.Gaming.Repositories
 
         Task<Team> UpdateTeamAsync(User requester, Team team);
 
-        Task<bool> DeleteTeamAsync(User requester, Team team);
+        Task<bool> DeleteTeamAsync(User requester, string teamId);
 
         Task<List<Game>> GetGamesAsync();
 

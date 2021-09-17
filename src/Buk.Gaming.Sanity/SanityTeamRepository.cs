@@ -192,15 +192,16 @@ namespace Buk.Gaming.Sanity {
             return null;
         }
 
-        public async Task<bool> DeleteTeamAsync(User requester, Team team)
+        public async Task<bool> DeleteTeamAsync(User requester, string teamId)
         {
-            SanityOrganization sOrganization = await Sanity.DocumentSet<SanityOrganization>().GetAsync(team.Organization.Id);
+            SanityTeam sTeam = await Sanity.DocumentSet<SanityTeam>().GetAsync(teamId);
+            SanityOrganization sOrganization = await Sanity.DocumentSet<SanityOrganization>().GetAsync(sTeam.Organization.Ref);
             
             if (sOrganization?.Members?.Find(m => m.Player.Ref == requester.Id)?.RoleStrength() >= 3)
             {
                 // var references = await Sanity.Client.FetchAsync<List<Object>>($"*[references({team.Id}]");
                 // if (references.Result?.Count > 0) return false;
-                await Sanity.DocumentSet<SanityTeam>().DeleteById(team.Id).CommitAsync();
+                await Sanity.DocumentSet<SanityTeam>().DeleteById(teamId).CommitAsync();
 
                 return true;
             }

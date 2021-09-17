@@ -73,7 +73,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("add")]
         [HttpPut]
-        public async Task<IActionResult> AddTeamAsync(Team team)
+        public async Task<IActionResult> AddTeamAsync([FromBody]Team team)
         {
             var user = await Session.GetCurrentUser();
             if (user == null)
@@ -85,7 +85,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("update")]
         [HttpPut]
-        public async Task<IActionResult> UpdateTeamAsync(Team team)
+        public async Task<IActionResult> UpdateTeamAsync([FromBody]Team team)
         {
             var user = await Session.GetCurrentUser();
             if (user == null)
@@ -93,19 +93,21 @@ namespace Buk.Gaming.Web.Controllers
                 return Unauthorized();
             }
 
-            return Ok(await TeamRepository.UpdateTeamAsync(user, team));
+            var t = await TeamRepository.UpdateTeamAsync(user, team);
+
+            return Ok(t);
         }
 
-        [Route("delete")]
-        [HttpPost]
-        public async Task<IActionResult> DeleteTeamAsync(Team team)
+        [Route("delete/{teamId}")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteTeamAsync(string teamId)
         {
             var user = await Session.GetCurrentUser();
             if (user == null)
             {
                 return Unauthorized();
             }
-            return Ok(await TeamRepository.DeleteTeamAsync(user, team));
+            return Ok(await TeamRepository.DeleteTeamAsync(user, teamId));
         }
 
         [Route("games")]
