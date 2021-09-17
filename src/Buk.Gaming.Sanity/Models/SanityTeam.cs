@@ -14,38 +14,46 @@ namespace Buk.Gaming.Sanity.Models {
             SanityType = "team";
         }
 
+        public SanityTeam(Team team)
+        {
+            Name = team.Name;
+            Id = team.Id;
+            Organization = new SanityReference<SanityOrganization>()
+            {
+                Ref = team.OrganizationId,
+            };
+            Captain = new SanityReference<Player>()
+            {
+                Ref = team.CaptainId,
+            };
+            Game = new SanityReference<SanityGame>()
+            {
+                Ref = team.GameId,
+            };
+            Players = team.PlayerIds.Select(i => new SanityReference<Player>()
+            {
+                Ref = i,
+            }).ToList();
+        }
+
         public string Name { get; set; }
 
-        [Include]
         public SanityReference<SanityOrganization> Organization { get; set; }
 
-        [Include]
         public SanityReference<Player> Captain { get; set; }
 
-        [Include]
         public List<SanityReference<Player>> Players { get; set; }
 
-        [Include]
         public SanityReference<SanityGame> Game { get; set; }
 
-        public Team ToTeam()
+        public Team ToTeam() => new Team()
         {
-            Game game = new Game
-            {
-                Name = Game.Value.Name,
-                Id = Game.Ref,
-                HasTeams = Game.Value.HasTeams,
-                Icon = Game.Value.Icon?.Asset.Value?.Url
-            };
-            return new Team()
-            {
-                Id = Id,
-                Name = Name,
-                Organization = Organization.Value.ToOrganization(),
-                Game = game,
-                Captain = Captain.Value,
-                Players = Players.Select(p => p.Value).ToList(),
-            };
-        }
+            CaptainId = Captain.Ref,
+            GameId = Game.Ref,
+            OrganizationId = Organization.Ref,
+            Id = Id,
+            Name = Name,
+            PlayerIds = Players.Select(i => i.Ref).ToList()
+        };
     }
 }

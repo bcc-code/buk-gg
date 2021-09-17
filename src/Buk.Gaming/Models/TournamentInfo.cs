@@ -59,9 +59,9 @@ namespace Buk.Gaming.Models
     public class TournamentAdminInfo : TournamentInfo {
         public Player Responsible { get; set; }
 
-        public List<Participant<Player>> SoloPlayers { get; set; } = new List<Participant<Player>>();
+        public (List<Participant> participants, List<Player> players) SoloPlayers { get; set; }
 
-        public List<Participant<Team>> ParticipantTeams { get; set; } = new List<Participant<Team>>();
+        public (List<Participant> participants, List<Team> teams) ParticipantTeams { get; set; }
     }
 
     public class TeamSize

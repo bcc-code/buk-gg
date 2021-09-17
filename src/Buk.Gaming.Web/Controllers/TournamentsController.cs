@@ -75,7 +75,12 @@ namespace Buk.Gaming.Web.Controllers
 
             if (team.CaptainId != user.Id)
             {
-                var organization = await _organizations
+                var organization = (await _organizations.GetAllOrganizationsAsync()).FirstOrDefault(o => o.Id == team.OrganizationId);
+                var roles = new string[] { "owner", "officer" };
+                
+                if (organization.Members.FirstOrDefault(i => i.Player.Id == user.Id && roles.Contains(i.Role)) == null) {
+                    throw new Exception("No access");
+                }
             }
 
             var tournament = (await TournamentInfo.GetAllTournamentsAsync()).FirstOrDefault(t => t.Id == tournamentId || t.Slug == tournamentId || t.ToornamentId == tournamentId);

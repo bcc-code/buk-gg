@@ -38,29 +38,14 @@ namespace Buk.Gaming.Sanity {
             return (await GetTeamsAsync()).FirstOrDefault(t => t.Id == teamId);
         }
 
-        public Task<List<Team>> GetTeamsAsync()
+        public async Task<List<Team>> GetTeamsAsync()
         {
-            return Cache.GetOrCreateAsync("Sanity_Teams", async (c) =>
-            {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60);
-                string query = $"*[_type == 'team' && !(_id in path('drafts.**'))]{this.TeamQuery}";
-                var result = await Sanity.Client.FetchAsync<List<Team>>(query);
-                return result.Result;
-            });
+            return (await Sanity.DocumentSet<SanityTeam>().ToListAsync()).Select(i => i.ToTeam()).ToList();
         }
 
-        public async Task<List<Team>> GetMyTeamsAsync(string playerId) 
+        public async Task SaveTeamAsync(Team team)
         {
-            List<Team> teams = (await GetTeamsAsync()).Where(t => t.Captain?.Id == playerId || t.Players?.FirstOrDefault(p => p.Id == playerId) != null).ToList();
 
-            return teams;
-        }
-
-        public async Task<List<Team>> GetTeamsInGameAsync(string gameId)
-        {
-            List<Team> teams = (await GetTeamsAsync()).Where(t => t.Game.Id == gameId).ToList();
-
-            return teams;
         }
 
         public async Task<Team> AddTeamAsync(User requester, Team team)

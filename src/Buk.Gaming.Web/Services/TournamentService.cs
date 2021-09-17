@@ -51,7 +51,25 @@ namespace Buk.Gaming.Web.Services
                 throw new Exception("Invalid tournament type");
             }
 
+            var user = await _session.GetCurrentUser();
 
+            if (user == null)
+            {
+                throw new Exception("User not valid");
+            }
+
+            var team = (await _teams.GetTeamsAsync()).FirstOrDefault(i => i.Id == request.TeamId);
+
+            if (team.CaptainId != user.Id)
+            {
+                var organization = (await _organizations.GetAllOrganizationsAsync()).FirstOrDefault(o => o.Id == team.OrganizationId);
+                var roles = new string[] { "owner", "officer" };
+
+                if (organization.Members.FirstOrDefault(i => i.Player.Id == user.Id && roles.Contains(i.Role)) == null)
+                {
+                    throw new Exception("No access");
+                }
+            }
         }
     }
 }
