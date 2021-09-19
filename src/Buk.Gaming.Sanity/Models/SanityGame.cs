@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Buk.Gaming.Sanity.Models {
     public class SanityGame : SanityDocument {
-        SanityGame() {
+        public SanityGame() {
             SanityType = "game";
         }
 
@@ -16,20 +16,6 @@ namespace Buk.Gaming.Sanity.Models {
 
         public bool HasTeams { get; set; }
 
-        [Include]
         public SanityImage Icon { get; set; }
-
-        public SanityObject[] TeamFields { get; set; }
-
-        public SanityObject[] PlayerFields { get; set; }
-
-        public Game ToGame() {
-            return new Game() {
-                Id = this.Id,
-                HasTeams = this.HasTeams,
-                Icon = this.Icon?.Asset?.Value?.Url,
-                Name = this.Name
-            };
-        }
     }
 }

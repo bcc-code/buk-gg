@@ -9,6 +9,5 @@ namespace Buk.Gaming.Models
         public bool CanImpersonate { get; set; }
 
         public bool IsAdministrator { get; set; }
-
     }
 }

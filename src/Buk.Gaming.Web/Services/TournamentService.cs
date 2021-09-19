@@ -1,6 +1,7 @@
 ﻿using Buk.Gaming.Models;
 using Buk.Gaming.Providers;
 using Buk.Gaming.Repositories;
+using Buk.Gaming.Services;
 using Buk.Gaming.Web.Classes;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Services
 {
-    public class TournamentService
+    public class TournamentService : ITournamentService
     {
         private readonly ISessionProvider _session;
         private readonly IMemoryCache _cache;
@@ -29,7 +30,7 @@ namespace Buk.Gaming.Web.Services
             _organizations = organizations;
         }
 
-        public Task<List<TournamentInfo>> GetTournamentsAsync()
+        public Task<List<Tournament>> GetTournamentsAsync()
         {
             return _cache.WithSemaphoreAsync("TOURNAMENTS", async () =>
             {
@@ -58,18 +59,20 @@ namespace Buk.Gaming.Web.Services
                 throw new Exception("User not valid");
             }
 
-            var team = (await _teams.GetTeamsAsync()).FirstOrDefault(i => i.Id == request.TeamId);
+            var team = (await _teams.GetTeamsAsync()).FirstOrDefault(i => i.Id == teamId);
 
             if (team.CaptainId != user.Id)
             {
                 var organization = (await _organizations.GetAllOrganizationsAsync()).FirstOrDefault(o => o.Id == team.OrganizationId);
                 var roles = new string[] { "owner", "officer" };
 
-                if (organization.Members.FirstOrDefault(i => i.Player.Id == user.Id && roles.Contains(i.Role)) == null)
+                if (!organization.Members.Any(i => i.PlayerId == user.Id && roles.Contains(i.Role)))
                 {
                     throw new Exception("No access");
                 }
             }
+
+            
         }
     }
 }

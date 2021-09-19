@@ -1,6 +1,7 @@
 ﻿using Buk.Gaming.Models;
 using Buk.Gaming.Providers;
 using Buk.Gaming.Repositories;
+using Buk.Gaming.Services;
 using Buk.Gaming.Web.Classes;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Services
 {
-    public class OrganizationService
+    public class OrganizationService : IOrganizationService
     {
         private readonly IMemoryCache _cache;
         private readonly ISessionProvider _session;
@@ -41,6 +42,16 @@ namespace Buk.Gaming.Web.Services
             }
 
             return (await GetAllOrganizations()).Where(i => i.IsPublic || i.Members.Any(m => m.Player.Id == user.Id)).ToList();
+        }
+
+        public async Task<Organization> GetOrganizationAsync(string id)
+        {
+            return (await GetOrganizationsAsync()).FirstOrDefault(i => i.Id == id);
+        }
+
+        public Task SaveOrganizationAsync(Organization model)
+        {
+            return _organizations.SaveOrganizationAsync(model);
         }
     }
 }

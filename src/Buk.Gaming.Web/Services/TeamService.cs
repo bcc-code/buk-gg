@@ -1,6 +1,7 @@
 ﻿using Buk.Gaming.Models;
 using Buk.Gaming.Providers;
 using Buk.Gaming.Repositories;
+using Buk.Gaming.Services;
 using Buk.Gaming.Web.Classes;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Services
 {
-    public class TeamService
+    public class TeamService : ITeamService
     {
         private readonly IMemoryCache _cache;
 
@@ -32,6 +33,8 @@ namespace Buk.Gaming.Web.Services
                 return await _teams.GetTeamsAsync();
             });
         }
+
+
 
         public async Task<List<Team>> GetTeamsAsync()
         {

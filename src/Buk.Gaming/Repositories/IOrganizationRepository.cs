@@ -8,24 +8,24 @@ namespace Buk.Gaming.Repositories
 {
     public interface IOrganizationRepository
     {
-        Task<List<Organization>> GetAllOrganizationsAsync();
+        /// <summary>
+        /// Get all organizations
+        /// </summary>
+        /// <returns></returns>
+        Task<List<Organization>> GetOrganizationsAsync();
 
-        Task<Organization> SaveOrganizationAsync(User requester, Organization organization);
+        /// <summary>
+        /// Return organization with this Id
+        /// </summary>
+        /// <param name="organizationId"></param>
+        /// <returns></returns>
+        Task<Organization> GetOrganizationAsync(string organizationId);
 
-        Task<Organization> CreateOrganizationAsync(User requester, Organization organization);
-
-        Task<Organization> AddPlayerAsync(User requester, string organizationId, string id);
-
-        Task<Organization> RemovePlayerAsync(User requester, string organizationId, string playerId);
-
-        Task<Organization> UpdateMemberAsync(User requester, string organizationId, Member member);
-
-        Task<Organization> AddPendingPlayerAsync(User requester, string organizationId, Player player);
-
-        Task<Organization> RemovePendingPlayerAsync(User requester, string organizationId, string playerId);
-
-        Task<Organization> UpdateImageAsync(User requester, string organizationId, Stream image);
-
-        Task<List<Player>> SearchForPlayersAsync(User requester, string searchString);
+        /// <summary>
+        /// Save organization
+        /// </summary>
+        /// <param name="organization"></param>
+        /// <returns></returns>
+        Task SaveOrganizationAsync(Organization organization);
     }
 }

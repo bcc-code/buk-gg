@@ -69,17 +69,10 @@ namespace Buk.Gaming.Sanity
             });
         }
 
-        public async Task<Organization> SaveOrganizationAsync(User requester, Organization organization)
+        public async Task<Organization> SaveOrganizationAsync(Organization organization)
         {
             if (!string.IsNullOrEmpty(organization.Id)) {
                 SanityOrganization org = (await GetOrganizationsAsync()).FirstOrDefault(o => o.Id == organization.Id);
-
-                var member = org?.Members.Find(m => m.Player.Ref == requester.Id);
-
-                if (member == null || member.RoleStrength() < 3)
-                {
-                    throw new Exception("User does not have access");
-                }
 
                 org.Name = organization.Name;
 

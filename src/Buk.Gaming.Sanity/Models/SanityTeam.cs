@@ -45,15 +45,5 @@ namespace Buk.Gaming.Sanity.Models {
         public List<SanityReference<Player>> Players { get; set; }
 
         public SanityReference<SanityGame> Game { get; set; }
-
-        public Team ToTeam() => new Team()
-        {
-            CaptainId = Captain.Ref,
-            GameId = Game.Ref,
-            OrganizationId = Organization.Ref,
-            Id = Id,
-            Name = Name,
-            PlayerIds = Players.Select(i => i.Ref).ToList()
-        };
     }
 }

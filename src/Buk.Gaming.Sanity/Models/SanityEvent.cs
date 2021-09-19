@@ -32,27 +32,5 @@ namespace Buk.Gaming.Sanity.Models
         public SanityLocaleBlock Description { get; set; }
 
         public bool LiveChat { get; set; }
-
-        public EventInfo ToEventInfo(SanityHtmlBuilder htmlBuilder)
-        {
-            var responsible = new Player();
-            if (this.Responsible != null) {
-                responsible.Name = this.Responsible.Value.Name;
-                responsible.Id = this.Responsible.Value.Id;
-                responsible.Email = this.Responsible.Value.Id;
-                responsible.Nickname = this.Responsible.Value.Nickname;
-            }
-
-            return new EventInfo {
-                Id = this.Id,
-                Title = this.Title?.GetForCurrentCulture(),
-                Image = this.Image?.Asset?.Value?.Url,
-                Responsible = this.Responsible?.Value,
-                Date = this.Date,
-                Description = this.Description?.GetForCurrentCulture(htmlBuilder),
-                CategoryId = this.Category?.Ref,
-            };
-        }
-
     }
 }

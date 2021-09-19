@@ -1,14 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Sanity.Linq.CommonTypes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Buk.Gaming.Models
+namespace Buk.Gaming.Sanity.Models
 {
-    public class Player
+    public class SanityPlayer : SanityDocument
     {
-        public string Id { get; set; }
-
         public int PersonId { get; set; }
 
         public string Email { get; set; }
@@ -19,10 +17,8 @@ namespace Buk.Gaming.Models
 
         public string Nickname { get; set; }
 
-        public readonly string DisplayName => Nickname ?? Name ?? Email ?? "";
-
         public string Location { get; set; }
-    
+
         public bool NoNbIsStandard { get; set; }
 
         public bool IsO18 { get; set; }
@@ -30,20 +26,18 @@ namespace Buk.Gaming.Models
         public string DiscordUser { get; set; }
 
         public string DiscordId { get; set; }
-        
+
         public bool DiscordIsConnected { get; set; }
 
         public bool EnableMoreDiscords { get; set; }
 
-        public List<ExtraDiscordUser> MoreDiscordUsers { get; set; }
+        public ExtraDiscordUser[] MoreDiscordUsers { get; set; }
 
         public DateTimeOffset DateRegistered { get; set; }
 
         public DateTimeOffset DateLastActive { get; set; }
 
-        public bool IsRegistered => DateRegistered != null;
-
-        public class ExtraDiscordUser
+        public class ExtraDiscordUser : SanityObject
         {
             public string Name { get; set; }
 
