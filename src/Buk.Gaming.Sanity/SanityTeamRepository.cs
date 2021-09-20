@@ -20,6 +20,11 @@ namespace Buk.Gaming.Sanity {
 
         }
 
+        public async Task<Team> GetTeamAsync(string id)
+        {
+            return (await Sanity.DocumentSet<SanityTeam>().GetAsync(id))?.ToTeam();
+        }
+
         public async Task<List<Team>> GetTeamsForOrganizationAsync(string organizationId)
         {
             return (await Sanity.DocumentSet<SanityTeam>().Where(i => i.Organization.Ref == organizationId).ToListAsync()).Select(i => i.ToTeam()).ToList();

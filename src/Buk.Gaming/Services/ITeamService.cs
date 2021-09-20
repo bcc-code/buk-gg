@@ -20,7 +20,7 @@ namespace Buk.Gaming.Services
         /// </summary>
         /// <param name="organizationId"></param>
         /// <returns></returns>
-        Task<List<Team>> GetTeamsAsync(string organizationId);
+        Task<List<Team>> GetTeamsInOrganizationAsync(string organizationId);
 
         /// <summary>
         /// Get teams in game

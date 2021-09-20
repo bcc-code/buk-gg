@@ -77,6 +77,7 @@ namespace Buk.Gaming
             services.AddScoped<ITournamentRepository, SanityTournamentRepository>();
             services.AddScoped<IOrganizationRepository, SanityOrganizationRepository>();
             services.AddScoped<ITeamRepository, SanityTeamRepository>();
+            services.AddScoped<IObjectRepository, SanityObjectRepository>();
             services.AddScoped<PlayerService>();
             services.AddHttpClient();
 
@@ -146,14 +147,6 @@ namespace Buk.Gaming
                 // }
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                if (!isLocal) 
-                {
-                    app.UseHttpsRedirection();
-                    //app.UseHsts();
-                }
-            }
 
             var supportedCultures = new[]
             {
@@ -164,6 +157,8 @@ namespace Buk.Gaming
                 new CultureInfo("en-GB"),
                 new CultureInfo("en-AU"),
             };
+
+            app.UseSwaggerUI();
 
             app.UseRequestLocalization(new RequestLocalizationOptions
             {

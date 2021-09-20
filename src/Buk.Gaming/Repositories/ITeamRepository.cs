@@ -14,6 +14,8 @@ namespace Buk.Gaming.Repositories
 
         Task<List<Team>> GetTeamsForGameAsync(string gameId);
 
+        Task<Team> GetTeamAsync(string teamId);
+
         Task SaveOrCreateTeamAsync(Team team);
     }
 }

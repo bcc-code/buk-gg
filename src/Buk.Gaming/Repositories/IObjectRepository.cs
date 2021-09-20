@@ -11,5 +11,7 @@ namespace Buk.Gaming.Repositories
         Task<List<Game>> GetGamesAsync();
 
         Task<List<Category>> GetCategoriesAsync();
+
+        Task<List<Camp>> GetCampsAsync();
     }
 }

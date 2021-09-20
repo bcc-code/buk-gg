@@ -118,7 +118,7 @@ namespace Buk.Gaming.Sanity.Extensions
         public static Invitation ToInvitation(this SanityInvitation i) => new()
         {
             PlayerId = i.Player?.Ref,
-            Type = i.Type,
+            Type = i.Type == "request" ? InvitationType.Request : InvitationType.Invitation,
         };
 
         public static Member ToMember(this SanityMember i) => new()
@@ -143,6 +143,18 @@ namespace Buk.Gaming.Sanity.Extensions
             HasTeams = i.HasTeams,
             Icon = i.Icon?.Asset?.Value?.Url,
             Name = i.Name,
+        };
+
+        public static Category ToCategory(this SanityCategory i) => new()
+        {
+            Id = i.Id,
+            Name = i.Title?.ToLocaleDictionary(),
+        };
+
+        public static Camp ToCamp(this SanityCamp i) => new()
+        {
+            Id = i.Id,
+            Name = i.Title?.ToLocaleDictionary(),
         };
 
         public static Participant ToParticipant(this SanityParticipant i) => new()
