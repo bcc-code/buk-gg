@@ -40,7 +40,7 @@ namespace Buk.Gaming.Models
 
         public DateTimeOffset DateLastActive { get; set; }
 
-        public bool IsRegistered => DateRegistered != null;
+        public bool IsRegistered => DateRegistered != default;
 
         public class ExtraDiscordUser
         {

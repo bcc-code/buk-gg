@@ -11,47 +11,53 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Services
 {
-    public class OrganizationService : IOrganizationService
+    public class OrganizationService : BaseService, IOrganizationService
     {
-        private readonly IMemoryCache _cache;
-        private readonly ISessionProvider _session;
         private readonly IOrganizationRepository _organizations;
 
-        public OrganizationService(IMemoryCache cache, ISessionProvider session, IOrganizationRepository organizations)
+        public OrganizationService(IMemoryCache cache, ISessionProvider session, IOrganizationRepository organizations): base(cache, session)
         {
-            _cache = cache;
-            _session = session;
             _organizations = organizations;
         }
 
-        private Task<List<Organization>> GetAllOrganizations()
+        private Task<Dictionary<string, Organization>> GetAllOrganizationsAsync()
         {
-            return _cache.WithSemaphoreAsync("ORGANIZATIONS", async () =>
+            return Cache.WithSemaphoreAsync("ORGANIZATIONS", async () =>
             {
-                return await _organizations.GetAllOrganizationsAsync();
-            });
+                var orgs = await _organizations.GetOrganizationsAsync();
+
+                return orgs.ToDictionary(o => o.Id, o => o);
+            }, TimeSpan.FromMinutes(30));
         }
 
-        public async Task<List<Organization>> GetOrganizationsAsync()
+        public Task AcceptRequestAsync(string organizationId, string invitationId)
         {
-            var user = await _session.GetCurrentUser();
-
-            if (user == null)
-            {
-                throw new Exception("User not found");
-            }
-
-            return (await GetAllOrganizations()).Where(i => i.IsPublic || i.Members.Any(m => m.Player.Id == user.Id)).ToList();
+            throw new NotImplementedException();
         }
 
-        public async Task<Organization> GetOrganizationAsync(string id)
+        public Task AddMemberAsync(string organizationId, string playerId)
         {
-            return (await GetOrganizationsAsync()).FirstOrDefault(i => i.Id == id);
+            throw new NotImplementedException();
         }
 
-        public Task SaveOrganizationAsync(Organization model)
+        public Task AskToJoinAsync(string organizationId)
         {
-            return _organizations.SaveOrganizationAsync(model);
+            throw new NotImplementedException();
+        }
+
+        public Task<Organization> CreateOrganizationAsync(Organization.CreateOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteOrganizationAsync(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Organization> GetOrganizationAsync(string id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

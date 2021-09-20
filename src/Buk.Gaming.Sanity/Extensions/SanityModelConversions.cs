@@ -51,5 +51,19 @@ namespace Buk.Gaming.Sanity.Extensions
                 Ref = i.GameId ?? throw new Exception("Team must have a game"),
             }
         };
+
+        public static SanityParticipant ToSanity(this Participant i) => new()
+        {
+            Information = i.Information,
+            Player = i.Type == ParticipantType.Player ? new()
+            {
+                Ref = i.Id,
+            } : null,
+            Team = i.Type == ParticipantType.Team ? new()
+            {
+                Ref = i.Id,
+            } : null,
+            ToornamentId = i.ToornamentId,
+        };
     }
 }

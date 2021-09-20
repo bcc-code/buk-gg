@@ -14,9 +14,9 @@ namespace Buk.Gaming.Sanity.Serializers
 
     public static class SanityBlockSerializerExtensions
     {
-        public static SanityDataContext UseSanityBlockSerializer(this SanityDataContext sanity, SanityOptions options, IImageService imageSvc)
+        public static SanityDataContext UseSanityBlockSerializer(this SanityDataContext sanity, SanityOptions options)
         {
-            var serializer = new SanityBlockSerializer(options, imageSvc);
+            var serializer = new SanityBlockSerializer(options);
             serializer.Initialize(sanity);
             return sanity;
 
@@ -27,23 +27,19 @@ namespace Buk.Gaming.Sanity.Serializers
     internal class SanityBlockSerializer
     {
         private SanityDataContext _sanity { get; set; }
-        private IImageService _imgService { get; set; }
         public SanityOptions _opts { get; set; }
 
-        internal SanityBlockSerializer(SanityOptions options, IImageService imgservice)
+        internal SanityBlockSerializer(SanityOptions options)
         {
-            _imgService = imgservice;
             _opts = options;
         }     
         
         internal void Initialize(SanityDataContext sanity)
         {
             _sanity = sanity;
-            _sanity.AddHtmlSerializer("image", SanityImageUtilities.CreateCachedSerializer(_imgService));
             _sanity.AddHtmlSerializer("column2", SerializeDoubleColumns());
             _sanity.AddHtmlSerializer("column3", SerializeTrippleColumns());
             _sanity.AddHtmlSerializer("video", SerializeVideo());
-            _sanity.AddHtmlSerializer("imageGallery", SerializeImageGallery());
             _sanity.AddHtmlSerializer("tableItem", SerializeTable());
             _sanity.AddHtmlSerializer("modal", SerializeModal());
         }
@@ -136,43 +132,9 @@ namespace Buk.Gaming.Sanity.Serializers
             //VIMEO 
         }
 
-        public Func<JToken, SanityOptions, Task<string>> SerializeImageGallery()
-        {
-            return async (JToken input, SanityOptions options) =>
-            {
-                var html = new StringBuilder();
-                var layout = input["layout"]?.ToObject<string>() ?? "";
-                var customLayout = input["customLayout"]?.ToObject<string>() ?? "";
-                var images = input["images"]?.ToObject<List<SanityImageGalleryImage>>();
-
-                if (images.Count > 0)
-                {
-                    html.Append("<ul class=\"gp-image-gallery " + layout + " " + customLayout + "\">");
-                    foreach (var img in images)
-                    {
-                        var originalurl = SanityImageUtilities.GetImageURL(img, _opts);
-
-                        var _img = _imgService.GetCachedImageUrl(originalurl);
-                        html.Append("<li>");
-                        html.Append("<figure>");
-                        html.Append("<img src=\"" + _img + "\" />");
-                        html.Append("<figcaption class=\"caption\">" + (img.Caption.Length != 0 ? await _sanity.HtmlBuilder.BuildAsync(img?.Caption) : "&nbsp;") + "</figcaption>");
-                        html.Append("</figure>");
-                        html.Append("</li>");
-                    }
-                    html.Append("</ul>");
-                    return (html.ToString());
-                }
-                else
-                {
-                    return "";
-                }
-            };
-        }
-
          public Func<JToken, SanityOptions, Task<string>> SerializeModal()
         {
-            return async (JToken input, SanityOptions options) =>
+            return (JToken input, SanityOptions options) =>
             {
                 var html = new StringBuilder();
                 var src = input["src"]?.ToObject<string>() ?? "";
@@ -181,7 +143,7 @@ namespace Buk.Gaming.Sanity.Serializers
   
                 html.Append($"<button type=\"button\" class=\"btn btn-primary\" onclick=\"window.showModal('{src}')\">{buttonText}</button>");
                 
-                return (html.ToString());
+                return Task.Run(() => html.ToString());
 
             };
         }
@@ -189,13 +151,13 @@ namespace Buk.Gaming.Sanity.Serializers
 
         public Func<JToken, SanityOptions, Task<string>> SerializeTable()
         {
-            return async (JToken input, SanityOptions options) =>
+            return (JToken input, SanityOptions options) =>
             {
                 var table = input?.ToObject<SanityTable>();
                 var html = new StringBuilder();
                 if (table.Table == null)
                 {
-                    return "";
+                    return Task.Run(() => "");
                 }
 
                 if (table.Bootstrap)
@@ -277,7 +239,7 @@ namespace Buk.Gaming.Sanity.Serializers
                     {
                         html.Append("</div>");
                     }
-                    return html.ToString();
+                    return Task.Run(() => html.ToString());
                 }
                 else
                 {
@@ -337,7 +299,7 @@ namespace Buk.Gaming.Sanity.Serializers
                     {
                         html.Append("</div>");
                     }
-                    return html.ToString();
+                    return Task.Run(() =>html.ToString());
                 }
             };
         }

@@ -8,10 +8,10 @@ namespace Buk.Gaming.Repositories
 {
     public interface ITournamentRepository
     {
-        Task<List<Tournament>> GetAllTournamentsAsync();
+        Task<List<Tournament>> GetTournamentsAsync();
 
-        Task<Tournament> GetTournamentAsync(string id);
+        Task AddParticipantAsync(string tournamentId, Participant participant);
 
-        Task SaveOrCreateTournamentAsync(Tournament tournament);
+        Task RemoveParticipantAsync(string tournamentId, string participantId);
     }
 }

@@ -10,200 +10,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Buk.Gaming.Sanity.Extensions;
 
 namespace Buk.Gaming.Sanity {
-    public class SanityTeamRepository : ITeamRepository {
-
-        public SanityTeamRepository(SanityDataContext sanity, IMemoryCache cache)
-        {
-            Sanity = sanity;
-            Cache = cache;
-        }
-
-        public SanityDataContext Sanity { get; }
-
-        public IMemoryCache Cache { get; }
-
-        private readonly string PlayerQuery = "{_id, nickname, discordUser, discordId, email}";
-
-        private string MemberQuery {
-            get {
-                return $"'members': members[]{{..., player->{this.PlayerQuery}}}";
-            }
-        }
-        private string TeamQuery => $"{{..., captain->{this.PlayerQuery}, organization->{{..., 'image': image.asset->url, {this.MemberQuery}}}, game->{{..., 'icon': icon.asset->url}}, 'players': players[]->{this.PlayerQuery}}}";
-
-        public async Task<Team> GetTeamAsync(string teamId) 
-        {
-            return (await GetTeamsAsync()).FirstOrDefault(t => t.Id == teamId);
-        }
-
-        public async Task<List<Team>> GetTeamsAsync()
-        {
-            return (await Sanity.DocumentSet<SanityTeam>().ToListAsync()).Select(i => i.ToTeam()).ToList();
-        }
-
-        public async Task SaveTeamAsync(Team team)
+    public class SanityTeamRepository : SanityRepository, ITeamRepository 
+    {
+        public SanityTeamRepository(SanityDataContext sanity, IMemoryCache cache): base(sanity, cache)
         {
 
         }
 
-        public async Task<Team> AddTeamAsync(User requester, Team team)
+        public async Task<List<Team>> GetTeamsForOrganizationAsync(string organizationId)
+        {
+            return (await Sanity.DocumentSet<SanityTeam>().Where(i => i.Organization.Ref == organizationId).ToListAsync()).Select(i => i.ToTeam()).ToList();
+        }
+
+        public async Task<List<Team>> GetTeamsForOrganizationsAsync(IEnumerable<string> organizationIds)
+        {
+            return (await Sanity.DocumentSet<SanityTeam>().Where(i => organizationIds.Contains(i.Organization.Ref)).ToListAsync()).Select(i => i.ToTeam()).ToList();
+        }
+
+        public async Task<List<Team>> GetTeamsForGameAsync(string gameId)
+        {
+            return (await Sanity.DocumentSet<SanityTeam>().Where(i => i.Game.Ref == gameId).ToListAsync()).Select(i => i.ToTeam()).ToList();
+        }
+
+        public async Task SaveOrCreateTeamAsync(Team team)
         {
             if (string.IsNullOrEmpty(team.Id))
             {
                 team.Id = Guid.NewGuid().ToString();
 
-                SanityOrganization org = await Sanity.DocumentSet<SanityOrganization>().GetAsync(team.Organization?.Id);
-
-                SanityMember mem = org?.Members.Find(m => m.Player.Ref == requester.Id);
-
-                if (mem?.Role == "owner" || mem?.Role == "officer")
-                {
-                    SanityTeam sTeam = new SanityTeam() {
-                        Id = team.Id,
-                        Name = team.Name,
-                        Captain = new SanityReference<Player>() {
-                            Ref = team.Captain.Id,
-                        },
-                        Game = new SanityReference<SanityGame>() {
-                            Ref = team.Game.Id,
-                        },
-                        Organization = new SanityReference<SanityOrganization>() {
-                            Ref = team.Organization.Id
-                        }
-                    };
-
-                    await Sanity.DocumentSet<SanityTeam>().Create(sTeam).CommitAsync();
-
-                    (await GetTeamsAsync()).Add(team);
-
-                    return team;
-                }
-            }
-            return null;
-        }
-
-        public class TournamentParticipant {
-            public bool IsParticipant { get; }
-
-            public int MinPlayers { get; }
-        }
-
-        public async Task<Team> UpdateTeamAsync(User requester, Team team)
-        {
-            SanityTeam sTeam = await Sanity.DocumentSet<SanityTeam>().GetAsync(team.Id);
-
-            if (sTeam == null) return null;
-
-            Team cachedTeam = (await GetTeamsAsync()).FirstOrDefault(t => t.Id == team.Id);
-
-            if (sTeam.Captain?.Ref == requester.Id)
+                await Sanity.DocumentSet<SanityTeam>().Create(team.ToSanity()).CommitAsync();
+            } else
             {
-                List<SanityReference<Player>> pList = new List<SanityReference<Player>>();
-
-                foreach(Player player in team.Players) {
-                    if (player.Id != team.Captain.Id && pList.Find(p => p.Ref == player.Id) == null) {
-                        if (pList.FirstOrDefault(p => p.Ref == player.Id) == null)
-                        {
-                            pList.Add(new SanityReference<Player>()
-                            {
-                                Ref = player.Id,
-                            });
-                        }
-                    }
-                }
-
-                sTeam.Name = team.Name;
-                cachedTeam.Name = team.Name;
-
-                cachedTeam.Captain = team.Captain;
-                sTeam.Captain = new SanityReference<Player>() {
-                    Ref = team.Captain.Id,
-                };
-
-                cachedTeam.Players = team.Players;
-                sTeam.Players = pList;
-
-                var teamSizes = await Sanity.Client.FetchAsync<List<int>>($"*[_type == 'tournament' && count(teams) > 0 && '{team.Id}' in teams[].team->_id].teamSize.min");
-
-                foreach(int teamSize in teamSizes.Result)
-                {
-                    if (teamSize > (team.Players.Count + 1)) {
-                        return null;
-                    }
-                }
-                await Sanity.DocumentSet<SanityTeam>().Update(sTeam).CommitAsync();
-
-                return team;
+                await Sanity.DocumentSet<SanityTeam>().Update(team.ToSanity()).CommitAsync();
             }
-
-            // CHECKING IF PLAYER HAS PERMISSIONS IN ORGANIZATION
-            SanityOrganization sOrganization = await Sanity.DocumentSet<SanityOrganization>().GetAsync(sTeam.Organization.Ref);
-
-            if (sOrganization?.Members?.Find(m => m.Player.Ref == requester.Id)?.RoleStrength() >= 3)
-            {
-                List<SanityReference<Player>> pList = new List<SanityReference<Player>>();
-
-                foreach (Player player in team.Players)
-                {
-                    pList.Add(new SanityReference<Player>()
-                    {
-                        Ref = player.Id,
-                    });
-                }
-
-                sTeam.Name = team.Name;
-
-                sTeam.Captain = new SanityReference<Player>()
-                {
-                    Ref = team.Captain.Id,
-                };
-
-                sTeam.Players = pList;
-
-                var teamSizes = await Sanity.Client.FetchAsync<List<int>>($"*[_type == 'tournament' && count(teams) > 0 && '{team.Id}' in teams[].team->_id].teamSize.min"); 
-
-                foreach(int teamSize in teamSizes.Result)
-                {
-                    if (teamSize > (team.Players.Count + 1)) {
-                        return null;
-                    }
-                }
-                await Sanity.DocumentSet<SanityTeam>().Update(sTeam).CommitAsync();
-
-                return team;
-            }
-            return null;
-        }
-
-        public async Task<bool> DeleteTeamAsync(User requester, string teamId)
-        {
-            SanityTeam sTeam = await Sanity.DocumentSet<SanityTeam>().GetAsync(teamId);
-            SanityOrganization sOrganization = await Sanity.DocumentSet<SanityOrganization>().GetAsync(sTeam.Organization.Ref);
-            
-            if (sOrganization?.Members?.Find(m => m.Player.Ref == requester.Id)?.RoleStrength() >= 3)
-            {
-                // var references = await Sanity.Client.FetchAsync<List<Object>>($"*[references({team.Id}]");
-                // if (references.Result?.Count > 0) return false;
-                await Sanity.DocumentSet<SanityTeam>().DeleteById(teamId).CommitAsync();
-
-                return true;
-            }
-            return false;
-        }
-
-        public Task<List<Game>> GetGamesAsync()
-        {
-            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
-            return Cache.GetOrCreateAsync("Sanity_Games_" + lang, async (c) =>
-            {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60);
-
-                var result = await Sanity.DocumentSet<SanityGame>().ToListAsync();
-
-                return result.Select(g => g.ToGame()).ToList();
-            });
         }
     }
 }

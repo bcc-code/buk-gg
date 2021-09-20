@@ -47,5 +47,35 @@ namespace Buk.Gaming.Extensions
             PlayerId = i.PlayerId,
             Type = i.Type,
         };
+
+        public static BaseItemView View(this BaseItem i) => new()
+        {
+            Id = i.Id,
+            Name = i.Name.GetForCurrentCulture(),
+        };
+
+        public static ContactView View(this Contact i) => new()
+        {
+            Discord = i.Discord,
+            Email = i.Email,
+            Name = i.Name,
+            PhoneNumber = i.PhoneNumber,
+        };
+
+        public static TournamentView View(this Tournament i, List<Team> teams = null) => new()
+        {
+            Body = i.Body.GetForCurrentCulture(),
+            Contacts = i.Contacts.Select(c => c.View()).ToList(),
+            Id = i.Id,
+            LiveStream = i.LiveStream,
+            MaxPlayers = i.TeamSize.Max,
+            MinPlayers = i.TeamSize.Min,
+            RegistrationOpen = i.RegistrationOpen,
+            RequiredInfo = i.RequiredInformation.Select(r => r.GetForCurrentCulture()).ToList(),
+            SignupType = i.SignupType,
+            Teams = teams?.Select(t => t.View()).ToList(),
+            Title = i.Title.GetForCurrentCulture(),
+            Winner = i.Winner,
+        };
     }
 }

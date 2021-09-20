@@ -16,7 +16,6 @@ using Sanity.Linq;
 using Microsoft.Extensions.Options;
 using Buk.Gaming.Sanity;
 using Buk.Gaming.Sanity.Serializers;
-using Buk.Gaming.Images;
 using Buk.Gaming.Toornament;
 using Buk.Gaming.Repositories;
 using System.Globalization;
@@ -72,13 +71,10 @@ namespace Buk.Gaming
             services.AddScoped(s =>
             {
                 var options = s.GetRequiredService<SanityOptions>();
-                var sanity = new SanityDataContext(options);
-                sanity.UseSanityBlockSerializer(options, s.GetRequiredService<IImageService>());
-                return sanity;
+                return new SanityDataContext(options);
             });
             services.AddScoped<IPlayerRepository, SanityPlayerRepository>();
             services.AddScoped<ITournamentRepository, SanityTournamentRepository>();
-            services.AddScoped<IEventRepository, SanityEventRepository>();
             services.AddScoped<IOrganizationRepository, SanityOrganizationRepository>();
             services.AddScoped<ITeamRepository, SanityTeamRepository>();
             services.AddScoped<PlayerService>();
@@ -92,15 +88,6 @@ namespace Buk.Gaming
             {
                 services.AddScoped<ILocalizationService, CachedSanityLocalizationService>();
             }
-
-            // Images
-            services.AddTransient<IImageService, ImageService>();
-            services.Configure<ImageOptions>(Configuration.GetSection("Images"));
-            services.AddTransient(s => s.GetService<IOptionsSnapshot<ImageOptions>>().Value);
-            
-            // Mapping
-
-
 
             // Session
             services.AddScoped<ISessionProvider, SessionProvider>();

@@ -10,147 +10,72 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Buk.Gaming.Sanity.Extensions;
+using System.Threading;
 
 namespace Buk.Gaming.Sanity
 {
-    public class SanityTournamentRepository : ITournamentRepository
+    public class SanityTournamentRepository : SanityRepository, ITournamentRepository
     {
-        public SanityTournamentRepository(SanityDataContext sanity, IMemoryCache cache)
+        public SanityTournamentRepository(SanityDataContext sanity, IMemoryCache cache) : base(sanity, cache)
         {
-            Sanity = sanity;
-            Cache = cache;
+
         }
 
-        public SanityDataContext Sanity { get; }
-        public IMemoryCache Cache { get; }
-
-        public Task<List<TournamentInfo>> GetAllTournamentsAsync()
+        public async Task<List<Tournament>> GetTournamentsAsync()
         {
-            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
-            return Cache.GetOrCreateAsync("Sanity_Tournament_Info_" + lang, async (c) => {
-                
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
-                var tournaments = await Sanity.DocumentSet<SanityTournament>().Include(t => t.Camp).Where(t => !t.IsDraft() && t.Camp.Value.Active).ToListAsync();
-                return tournaments?.Select(t => t.ToTournamentInfo(Sanity.HtmlBuilder)).ToList();
+            return (await Sanity.DocumentSet<SanityTournament>().Where(i => !i.Id.StartsWith("draft")).ToListAsync()).Select(i => i.ToTournament(Sanity.HtmlBuilder)).ToList();
+        }
 
+        public async Task AddParticipantAsync(string tournamentId, Participant participant)
+        {
+            await UpdateDocumentAsync<SanityTournament>(tournamentId, (t) =>
+            {
+                if (t.SignupType == "player")
+                {
+                    if (participant.Type != ParticipantType.Player)
+                    {
+                        throw new Exception("Wrong participant type");
+                    }
+                    t.SoloPlayers.Add(participant.ToSanity());
+                }
+                else
+                {
+                    if (participant.Type != ParticipantType.Team)
+                    {
+                        throw new Exception("Wrong participant type");
+                    }
+                    t.Teams.Add(participant.ToSanity());
+                }
             });
         }
 
-        public async Task<Participant<Team>> AddTeamToTournamentAsync(string tournamentId, Participant<Team> team)
+        public async Task RemoveParticipantAsync(string tournamentId, string participantId)
         {
-            var teamRef = new TournamentTeam() {
-                Team = new SanityReference<SanityTeam>() {
-                    Ref = team.Item.Id,
-                },
-                Information = team.Information.ToList(),
-                ToornamentId = team.ToornamentId,
-            };
-
-            SanityTournament tournament = await Sanity.DocumentSet<SanityTournament>().GetAsync(tournamentId);
-
-            if (tournament == null || tournament.TeamSize.Min > team.Item.Players.Count + 1 || tournament.TeamSize.Max < team.Item.Players.Count + 1 || tournament.SignupType == "solo" || !tournament.RegistrationOpen) return null;
-
-            if (!string.IsNullOrEmpty(tournament.Id))
+            await UpdateDocumentAsync<SanityTournament>(tournamentId, (t) =>
             {
-                if (tournament.Teams == null) {
-                    tournament.Teams = new List<TournamentTeam>();
+                if (t.SignupType == "player")
+                {
+                    var participant = t.SoloPlayers.FirstOrDefault(i => i.Player.Ref == participantId);
+
+                    if (participant == null)
+                    {
+                        throw new Exception("Tried to remove non-existing participant");
+                    }
+
+                    t.SoloPlayers.Remove(participant);
+                } else
+                {
+                    var participant = t.Teams.FirstOrDefault(i => i.Team.Ref == participantId);
+
+                    if (participant == null)
+                    {
+                        throw new Exception("Tried to remove non-existing participant");
+                    }
+
+                    t.Teams.Remove(participant);
                 }
-                if (tournament.Teams.Find(t => t.Team.Ref == team.Item.Id) == null){
-                    
-                    tournament.Teams.Add(teamRef);
-
-                    await Sanity.DocumentSet<SanityTournament>().Update(tournament).CommitAsync();
-                    return team;
-
-                }
-            }
-            return null;
-        }
-
-        public Task<Team[]> GetEligibleTeamsAsync(string tournamentId, string playerId)
-        {
-            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
-            return Cache.GetOrCreateAsync("Sanity_Teams_Captain_" + playerId + "_Tournament_" + tournamentId + "_" + lang, async (c) =>
-            {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
-                string query = $"*[_type == 'team' && '${playerId}' in members[role in ['captain']].player._ref && game._ref in *[_type == 'tournament' && _id == '{tournamentId}'].game._ref]";
-                var team = await Sanity.Client.FetchAsync<Team[]>(query);
-                return team.Result;
             });
         }
-
-        public async Task<Participant<Player>> AddPlayerToTournamentAsync(string tournamentId, Participant<Player> player)
-        {
-            var playerRef = new TournamentPlayer() {
-                Player = new SanityReference<Player>() {
-                    Ref = player.Item.Id,
-                    SanityKey = player.Item.Id,
-                },
-                Information = player.Information.ToList(),
-                ToornamentId = player.ToornamentId,
-            };
-
-            SanityTournament tournament = await Sanity.DocumentSet<SanityTournament>().GetAsync(tournamentId);
-
-            if (tournament == null || tournament.SignupType == "team" || !tournament.RegistrationOpen) return null;
-
-            if (tournament.SoloPlayers == null)
-            {
-                tournament.SoloPlayers = new List<TournamentPlayer>();
-            }
-
-            if (tournament.SoloPlayers.Find(t => t.Player.Ref == player.Item.Id) != null) return null;
-            tournament.SoloPlayers.Add(playerRef);
-
-            await Sanity.DocumentSet<SanityTournament>().Update(tournament).CommitAsync();
-            return player;
-        }
-
-        // class ParticipantResult<T> {
-        //     public Participant<T>[] items { get; set; }
-
-        // }
-
-        public Task<TournamentAdminInfo> GetAdminInfoAsync(User requester, string tournamentId) {
-            var lang = System.Threading.Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
-            return Cache.GetOrCreateAsync<TournamentAdminInfo>($"Sanity_Tournament_{tournamentId}_Admin_{lang}", async (c) => {
-                c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(20);
-                SanityTournament tournament = await Sanity.DocumentSet<SanityTournament>().Where(t => t.Id == tournamentId && t.Responsible.Ref == requester.Id)?.FirstOrDefaultAsync();
-
-                if (tournament != null) {
-                    return tournament.ToTournamentAdminInfo(Sanity.HtmlBuilder);
-                }
-
-                return new TournamentAdminInfo();
-            });
-        }
-
-        // public Task<Participant<Team>[]> GetTeamsAsync(User requester, string tournamentId)
-        // {
-        //     return Cache.GetOrCreateAsync("Sanity_Tournament_" + tournamentId + "_Teams", async c => 
-        //     {
-        //         c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
-
-        //         string query = $"*[_type == 'tournament' && _id == '{tournamentId}' && responsible._ref == '{requester.Id}']{{teams[]{{information, 'item': team->{{..., organization->, players[]->}}}}}}";
-
-        //         var result = (await Sanity.Client.FetchAsync<ParticipantResult<Team>>(query));
-
-        //         return result.Result.items;
-        //     });
-        // }
-        
-        // public Task<Participant<Player>[]> GetPlayersAsync(User requester, string tournamentId)
-        // {
-        //     return Cache.GetOrCreateAsync("Sanity_Tournament_" + tournamentId + "_Players", async c => 
-        //     {
-        //         c.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
-
-        //         string query = $"*[_type == 'tournament' && _id == '{tournamentId}' && responsible._ref == '{requester.Id}']{{soloPlayers[]{{information, 'item': player->}}}}";
-
-        //         var result = await Sanity.Client.FetchAsync<ParticipantResult<Player>>(query);
-
-        //         return result.Result.items;
-        //     });
-        // }
     }
 }

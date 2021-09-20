@@ -144,5 +144,13 @@ namespace Buk.Gaming.Sanity.Extensions
             Icon = i.Icon?.Asset?.Value?.Url,
             Name = i.Name,
         };
+
+        public static Participant ToParticipant(this SanityParticipant i) => new()
+        {
+            Type = i.Player != null ? ParticipantType.Player : ParticipantType.Team,
+            Id = i.Player?.Ref ?? i.Team?.Ref,
+            Information = i.Information,
+            ToornamentId = i.ToornamentId,
+        };
     }
 }

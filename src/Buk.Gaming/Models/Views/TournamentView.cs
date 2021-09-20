@@ -20,7 +20,7 @@ namespace Buk.Gaming.Models.Views
 
         public int MinPlayers { get; set; }
 
-        public List<Contact> Contacts { get; set; }
+        public List<ContactView> Contacts { get; set; }
 
         public string Winner { get; set; }
 

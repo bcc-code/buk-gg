@@ -10,40 +10,52 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Services
 {
-    public class TeamService : ITeamService
+    public class TeamService : BaseService, ITeamService
     {
-        private readonly IMemoryCache _cache;
-
-        private readonly ISessionProvider _session;
         private readonly ITeamRepository _teams;
         private readonly IOrganizationService _organizations;
 
-        public TeamService(IMemoryCache cache, ISessionProvider session, ITeamRepository teams, IOrganizationService organizations)
+        public TeamService(IMemoryCache cache, ISessionProvider session, ITeamRepository teams, IOrganizationService organizations): base(cache, session)
         {
-            _cache = cache;
-            _session = session;
             _teams = teams;
             _organizations = organizations;
         }
 
-        private Task<List<Team>> GetAllTeamsAsync()
+        public Task AddPlayerAsync(string teamId, string playerId)
         {
-            return _cache.WithSemaphoreAsync("TEAMS", async () =>
-            {
-                return await _teams.GetTeamsAsync();
-            });
+            var user = await Session.GetCurrentUser();
+
+            
         }
 
-        public async Task<List<Team>> GetTeamsAsync()
+        public Task<Team> CreateTeamAsync(Team.CreateOptions options)
         {
-            var user = await _session.GetCurrentUser();
-
-            if (user == null)
-            {
-                throw new Exception("User not valid");
-            }
+            throw new NotImplementedException();
         }
 
-        public async Task<Team> GetTeamAsync(string teamId)
+        public Task<Team> GetTeamAsync(string teamId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Team>> GetTeamsAsync(string organizationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Team>> GetTeamsInGameAsync(string gameId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemovePlayerAsync(string teamId, string playerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetCaptainAsync(string teamId, string playerId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
