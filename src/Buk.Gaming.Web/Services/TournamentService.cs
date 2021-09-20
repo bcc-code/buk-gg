@@ -1,4 +1,5 @@
-﻿using Buk.Gaming.Models;
+﻿using Buk.Gaming.Extensions;
+using Buk.Gaming.Models;
 using Buk.Gaming.Providers;
 using Buk.Gaming.Repositories;
 using Buk.Gaming.Services;
@@ -11,68 +12,63 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Services
 {
-    public class TournamentService : ITournamentService
+    public class TournamentService : BaseService, ITournamentService
     {
-        private readonly ISessionProvider _session;
-        private readonly IMemoryCache _cache;
-
         private readonly ITournamentRepository _tournaments;
-        private readonly IOrganizationRepository _organizations;
-        private readonly ITeamRepository _teams;
+        private readonly IPlayerRepository _players;
+        private readonly IOrganizationService _organizations;
+        private readonly ITeamService _teams;
 
-        public TournamentService(ISessionProvider session, IMemoryCache memoryCache, ITournamentRepository tournaments, ITeamRepository teams, IOrganizationRepository organizations)
+        public TournamentService(ISessionProvider session, IMemoryCache memoryCache, ITournamentRepository tournaments, ITeamService teams, IPlayerRepository players, IOrganizationService organizations) : base(memoryCache, session)
         {
-            _session = session;
-            _cache = memoryCache;
-
             _tournaments = tournaments;
             _teams = teams;
+            _players = players;
             _organizations = organizations;
+        }
+
+        public async Task<(List<Participant> participants, List<Player> players)> GetParticipantsAsync(string tournamentId)
+        {
+            var user = await Session.GetCurrentUser();
+
+            var tournament = await GetTournamentAsync(tournamentId);
+
+            if (user.Id != tournament.ResponsibleId)
+            {
+                throw new UnauthorizedAccessException("No access, stay away!");
+            }
+
+
+
+            return new(tournament.Participants, tournament.SignupType == "player" ? await _players.GetPlayersAsync(tournament.Participants.Select(i => i.Id)) : null);
+        }
+
+        public async Task<Tournament> GetTournamentAsync(string tournamentId)
+        {
+            return (await GetTournamentsAsync()).FirstOrDefault(t => t.Id == tournamentId);
+        }
+
+        public Task<List<Team>> GetTeamsAsync(string tournamentId)
+        {
+            return Cache.WithSemaphoreAsync("TOURNAMENT_TEAMS_" + tournamentId, async () =>
+            {
+                return await _teams.GetTeamsInTournamentAsync(tournamentId);
+            }, TimeSpan.FromMinutes(30));
         }
 
         public Task<List<Tournament>> GetTournamentsAsync()
         {
-            return _cache.WithSemaphoreAsync("TOURNAMENTS", async () =>
-            {
-                return await _tournaments.GetAllTournamentsAsync();
-            }, TimeSpan.FromMinutes(30));
+            throw new NotImplementedException();
+        }
+        
+        public Task RegisterAsync(string tournamentId, string information = null)
+        {
+            throw new NotImplementedException();
         }
 
-        public async Task<TournamentInfo> GetTournamentAsync(string id)
+        public Task RegisterTeamAsync(string tournamentId, string teamId, string information = null)
         {
-            return (await GetTournamentsAsync()).FirstOrDefault(i => i.Id == id);
-        }
-
-        public async Task RegisterTeamAsync(string tournamentId, string teamId, string information)
-        {
-            var tournament = await GetTournamentAsync(tournamentId);
-
-            if (tournament.SignupType != "team")
-            {
-                throw new Exception("Invalid tournament type");
-            }
-
-            var user = await _session.GetCurrentUser();
-
-            if (user == null)
-            {
-                throw new Exception("User not valid");
-            }
-
-            var team = (await _teams.GetTeamsAsync()).FirstOrDefault(i => i.Id == teamId);
-
-            if (team.CaptainId != user.Id)
-            {
-                var organization = (await _organizations.GetAllOrganizationsAsync()).FirstOrDefault(o => o.Id == team.OrganizationId);
-                var roles = new string[] { "owner", "officer" };
-
-                if (!organization.Members.Any(i => i.PlayerId == user.Id && roles.Contains(i.Role)))
-                {
-                    throw new Exception("No access");
-                }
-            }
-
-            
+            throw new NotImplementedException();
         }
     }
 }

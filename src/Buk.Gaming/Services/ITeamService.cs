@@ -30,6 +30,13 @@ namespace Buk.Gaming.Services
         Task<List<Team>> GetTeamsInGameAsync(string gameId);
 
         /// <summary>
+        /// Get teams in tournament
+        /// </summary>
+        /// <param name="tournamentId"></param>
+        /// <returns></returns>
+        Task<List<Team>> GetTeamsInTournamentAsync(string tournamentId);
+
+        /// <summary>
         /// Create a new team
         /// </summary>
         /// <param name="options"></param>

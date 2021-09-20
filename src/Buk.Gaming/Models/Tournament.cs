@@ -37,21 +37,19 @@ namespace Buk.Gaming.Models
 
         public string GameId { get; set; }
 
-        public List<string> TeamIds { get; set; }
-
-        public string SignupType { get; set; }
+        public SignupType SignupType { get; set; }
 
         public List<LocaleDictionary> RequiredInformation { get; set; }
 
-        public List<string> PlayerIds { get; set; }
-
-        public string Winner { get; set; }
+        public string WinnerId { get; set; }
 
         public TeamSize TeamSize { get; set; }
 
         public List<Contact> Contacts { get; set; } = new List<Contact>();
 
         public bool LiveChat { get; set; }
+
+        public List<Participant> Participants { get; set; }
     }
 
     public class TeamSize
@@ -59,5 +57,22 @@ namespace Buk.Gaming.Models
         public int Max { get; set; }
 
         public int Min { get; set; }
+    }
+
+    public class SignupType
+    {
+        private SignupType(string value)
+        {
+            Value = value;
+        }
+
+        public readonly string Value;
+
+        public static readonly SignupType Player = new("player");
+        public static readonly SignupType Team = new("team");
+
+        public override string ToString() => Value;
+
+        public static SignupType Validate(string value) => value == Player.ToString() ? Player : Team;
     }
 }

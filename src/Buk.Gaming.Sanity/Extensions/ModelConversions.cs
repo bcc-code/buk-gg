@@ -77,10 +77,16 @@ namespace Buk.Gaming.Sanity.Extensions
             Logo = i.Logo?.Asset?.Value?.Url,
             MainImage = i.MainImage?.Asset?.Value?.Url,
             Platform = i.Platform,
-            PlayerIds = i.SoloPlayers?.Select(p => p.Player.Ref).ToList() ?? new(),
             RegistrationOpen = i.RegistrationOpen,
             RequiredInformation = i.RequiredInfo.Select(r => r.ToLocaleDictionary()).ToList(),
-            
+            SignupType = SignupType.Validate(i.SignupType),
+            ResponsibleId = i.Responsible?.Ref,
+            Slug = i.Slug?.Current,
+            TeamSize = i.TeamSize,
+            ToornamentId = i.ToornamentId,
+            TelegramLink = i.TelegramLink,
+            WinnerId = i.Winner?.Ref,
+            Participants = i.SignupType == "team" ? i.Teams.Select(t => t.ToParticipant()).ToList() : i.SoloPlayers.Select(s => s.ToParticipant()).ToList(),
         };
 
         public static Contact ToContact(this SanityContact i) => new()
@@ -118,7 +124,7 @@ namespace Buk.Gaming.Sanity.Extensions
         public static Invitation ToInvitation(this SanityInvitation i) => new()
         {
             PlayerId = i.Player?.Ref,
-            Type = i.Type == "request" ? InvitationType.Request : InvitationType.Invitation,
+            Type = InvitationType.Validate(i.Type),
         };
 
         public static Member ToMember(this SanityMember i) => new()

@@ -11,9 +11,20 @@ namespace Buk.Gaming.Models
         public InvitationType Type { get; set; }
     }
 
-    public enum InvitationType
+    public class InvitationType
     {
-        Request,
-        Invitation
+        private InvitationType(string value)
+        {
+            Value = value;
+        }
+
+        public readonly string Value;
+
+        public override string ToString() => Value;
+
+        public static readonly InvitationType Request = new("request");
+        public static readonly InvitationType Invitation = new("invitation");
+
+        public static InvitationType Validate(string value) => value == Request.Value ? Request : Invitation;
     }
 }

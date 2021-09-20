@@ -15,9 +15,20 @@ namespace Buk.Gaming.Models
         public string ToornamentId { get; set; }
     }
 
-    public enum ParticipantType
+    public class ParticipantType
     {
-        Player,
-        Team
+        private ParticipantType(string value)
+        {
+            Value = value;
+        }
+
+        public readonly string Value;
+
+        public override string ToString() => Value;
+
+        public static readonly ParticipantType Player = new("player");
+        public static readonly ParticipantType Team = new("team");
+
+        public static ParticipantType Validate(string value) => value == Player.Value ? Player : Team;
     }
 }

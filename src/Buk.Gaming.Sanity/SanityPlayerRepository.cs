@@ -27,7 +27,7 @@ namespace Buk.Gaming.Sanity
         {
             if (Guid.TryParse(idOrEmail, out Guid id))
             {
-                return Sanity.DocumentSet<Player>().Where(p => p.Id == id.ToString()).FirstOrDefaultAsync();
+                return Sanity.DocumentSet<Player>().GetAsync(id.ToString());
             }
             return Sanity.DocumentSet<Player>().Where(p => p.Email == idOrEmail).FirstOrDefaultAsync();
         }

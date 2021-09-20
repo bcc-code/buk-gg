@@ -79,6 +79,11 @@ namespace Buk.Gaming.Web.Services
             }, TimeSpan.FromMinutes(1));
         }
 
+        public Task<List<Team>> GetTeamsInTournamentAsync(string tournamentId)
+        {
+            return _teams.GetTeamsForTournamentAsync(tournamentId);
+        }
+
         public async Task AddPlayerAsync(string teamId, string playerId)
         {
             var user = await Session.GetCurrentUser();

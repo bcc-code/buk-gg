@@ -170,7 +170,7 @@ namespace Buk.Gaming.Web.Providers
                 }
                 else _currentUser = authenticatedUser;
             }
-            return _currentUser;
+            return _currentUser ?? throw new Exception("Not authenticated");
             
         }
 

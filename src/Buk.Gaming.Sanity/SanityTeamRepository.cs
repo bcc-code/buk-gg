@@ -40,6 +40,11 @@ namespace Buk.Gaming.Sanity {
             return (await Sanity.DocumentSet<SanityTeam>().Where(i => i.Game.Ref == gameId).ToListAsync()).Select(i => i.ToTeam()).ToList();
         }
 
+        public async Task<List<Team>> GetTeamsForTournamentAsync(string tournamentId)
+        {
+            return (await Sanity.Client.FetchAsync<List<SanityTeam>>($"*[_type == 'team' && _id in *[_type == 'tournament' && _id == '{tournamentId}'][0].teams[].team._ref]")).Result.Select(i => i.ToTeam()).ToList();
+        }
+
         public async Task SaveOrCreateTeamAsync(Team team)
         {
             if (string.IsNullOrEmpty(team.Id))

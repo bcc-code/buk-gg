@@ -17,5 +17,7 @@ namespace Buk.Gaming.Repositories
         Task<Player> UpdateUserAsync(Player user, Player fromUser);
 
         Task DeletePlayerAsync(string id);
+
+        Task<List<Player>> GetPlayersAsync(IEnumerable<string> ids);
     }
 }

@@ -45,7 +45,7 @@ namespace Buk.Gaming.Extensions
         {
             Player = player?.View(),
             PlayerId = i.PlayerId,
-            Type = i.Type,
+            Type = i.Type.ToString(),
         };
 
         public static BaseItemView View(this BaseItem i) => new()
@@ -72,10 +72,18 @@ namespace Buk.Gaming.Extensions
             MinPlayers = i.TeamSize.Min,
             RegistrationOpen = i.RegistrationOpen,
             RequiredInfo = i.RequiredInformation.Select(r => r.GetForCurrentCulture()).ToList(),
-            SignupType = i.SignupType,
+            SignupType = i.SignupType.ToString(),
             Teams = teams?.Select(t => t.View()).ToList(),
             Title = i.Title.GetForCurrentCulture(),
             Winner = i.Winner,
+        };
+
+        public static ParticipantView View(this Participant i) => new()
+        {
+            Id = i.Id,
+            Information = i.Information,
+            ToornamentId = i.ToornamentId,
+            Type = i.Type.ToString(),
         };
     }
 }
