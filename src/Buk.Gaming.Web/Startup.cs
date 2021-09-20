@@ -43,10 +43,6 @@ namespace Buk.Gaming
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
             services.AddResponseCompression();
 
-            services.AddRazorPages();
-
-            services.AddMvc().AddNewtonsoftJson();
-
             services.AddCors(o =>
             {
                 o.AddDefaultPolicy(b =>

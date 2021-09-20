@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 namespace Buk.Gaming.Models

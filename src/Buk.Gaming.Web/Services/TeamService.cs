@@ -16,9 +16,9 @@ namespace Buk.Gaming.Web.Services
 
         private readonly ISessionProvider _session;
         private readonly ITeamRepository _teams;
-        private readonly IOrganizationRepository _organizations;
+        private readonly IOrganizationService _organizations;
 
-        public TeamService(IMemoryCache cache, ISessionProvider session, ITeamRepository teams, IOrganizationRepository organizations)
+        public TeamService(IMemoryCache cache, ISessionProvider session, ITeamRepository teams, IOrganizationService organizations)
         {
             _cache = cache;
             _session = session;
@@ -33,8 +33,6 @@ namespace Buk.Gaming.Web.Services
                 return await _teams.GetTeamsAsync();
             });
         }
-
-
 
         public async Task<List<Team>> GetTeamsAsync()
         {

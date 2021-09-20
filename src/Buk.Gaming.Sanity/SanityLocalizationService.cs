@@ -15,7 +15,7 @@ namespace Buk.Gaming.Sanity
     {
         private IMemoryCache _cache { get; }
 
-        public CachedSanityLocalizationService(SanityDataContext sanity, SanityOptions options, IMemoryCache cache, IImageService imageSvc) : base(sanity, options, imageSvc)
+        public CachedSanityLocalizationService(SanityDataContext sanity, SanityOptions options, IMemoryCache cache) : base(sanity, options)
         {
             _cache = cache;
         }
@@ -35,7 +35,7 @@ namespace Buk.Gaming.Sanity
     {
         private SanityDataContext _sanity { get; }
 
-        public SanityLocalizationService(SanityDataContext sanity, SanityOptions options, IImageService imageService)
+        public SanityLocalizationService(SanityDataContext sanity, SanityOptions options)
         {
             _sanity = sanity;
         }

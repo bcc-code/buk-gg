@@ -61,12 +61,5 @@ namespace Buk.Gaming.Sanity
             await Sanity.DocumentSet<Player>().PatchById(user.Id, p => p.Set = user).CommitAsync();
             return user;
         }
-
-        public async Task<PendingMember[]> GetPendingMembersAsync(string id)
-        {
-            string query = $"*[_type == 'organization' && '{id}' in pending[].player._ref].pending['{id}' == player._ref][0]";
-            var result = await Sanity.Client.FetchAsync<List<PendingMember>>(query);
-            return result.Result.ToArray();
-        }
     }
 }

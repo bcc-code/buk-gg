@@ -10,10 +10,12 @@ namespace Buk.Gaming.Models.Views
 
         public string Name { get; set; }
 
-        public string[] TeamIds { get; set; }
-
         public List<TeamView> Teams { get; set; }
 
-        public List
+        public List<MemberView> Members { get; set; }
+
+        public List<InvitationView> Invitations { get; set; }
+
+        public string Logo { get; set; }
     }
 }

@@ -14,35 +14,13 @@ namespace Buk.Gaming.Sanity.Models {
             SanityType = "team";
         }
 
-        public SanityTeam(Team team)
-        {
-            Name = team.Name;
-            Id = team.Id;
-            Organization = new SanityReference<SanityOrganization>()
-            {
-                Ref = team.OrganizationId,
-            };
-            Captain = new SanityReference<Player>()
-            {
-                Ref = team.CaptainId,
-            };
-            Game = new SanityReference<SanityGame>()
-            {
-                Ref = team.GameId,
-            };
-            Players = team.PlayerIds.Select(i => new SanityReference<Player>()
-            {
-                Ref = i,
-            }).ToList();
-        }
-
         public string Name { get; set; }
 
         public SanityReference<SanityOrganization> Organization { get; set; }
 
-        public SanityReference<Player> Captain { get; set; }
+        public SanityReference<SanityPlayer> Captain { get; set; }
 
-        public List<SanityReference<Player>> Players { get; set; }
+        public List<SanityReference<SanityPlayer>> Players { get; set; }
 
         public SanityReference<SanityGame> Game { get; set; }
     }

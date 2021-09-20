@@ -14,9 +14,7 @@ namespace Buk.Gaming.Models
 
         public string GameId { get; set; }
 
-        public string CaptainId { get; set; }
-
-        public List<string> PlayerIds { get; set; }
+        public List<Member> Members { get; set; }
 
         public class CreateOptions
         {

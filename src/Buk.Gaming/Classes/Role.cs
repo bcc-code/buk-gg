@@ -14,11 +14,13 @@ namespace Buk.Gaming.Classes
 
         public readonly string Value;
 
-        public static Role Member => new Role("member");
+        public static Role Member => new("member");
 
-        public static Role Officer => new Role("officer");
+        public static Role Officer => new("officer");
 
-        public static Role Owner => new Role("owner");
+        public static Role Owner => new("owner");
+
+        public static Role Captain => new("captain");
 
         public override string ToString() => Value;
 

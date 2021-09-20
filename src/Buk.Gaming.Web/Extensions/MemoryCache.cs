@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Classes
 {
-    public static class SemaphoreHelper
+    public static class MemoryCache
     {
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _semaphores = new();
 
         public static async Task<T> WithSemaphoreAsync<T>(this IMemoryCache memoryCache, string key, Func<Task<T>> factory, TimeSpan? expiry = null)
         {

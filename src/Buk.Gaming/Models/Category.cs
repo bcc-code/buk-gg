@@ -5,10 +5,8 @@ using System.Text;
 
 namespace Buk.Gaming.Models
 {
-    public class Category
+    public class Category : BaseItem
     {
-        public string Id { get; set; }
 
-        public LocaleDictionary Name { get; set; }
     }
 }

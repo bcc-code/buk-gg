@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,7 +18,7 @@ namespace Buk.Gaming.Models
 
         public string Nickname { get; set; }
 
-        public readonly string DisplayName => Nickname ?? Name ?? Email ?? "";
+        public string DisplayName => Nickname ?? Name ?? Email ?? "";
 
         public string Location { get; set; }
     

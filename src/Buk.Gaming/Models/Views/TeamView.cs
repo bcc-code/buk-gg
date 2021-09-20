@@ -14,8 +14,8 @@ namespace Buk.Gaming.Models.Views
 
         public string CaptainId { get; set; }
 
-        public string[] PlayerIds { get; set; }
+        public List<string> PlayerIds { get; set; }
 
-        public List<PlayerView> Members { get; set; }
+        public List<MemberView> Members { get; set; }
     }
 }
