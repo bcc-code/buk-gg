@@ -23,9 +23,13 @@ namespace Buk.Gaming.Sanity
             return Sanity.DocumentSet<Player>().DeleteById(id).CommitAsync();
         }
 
-        public Task<Player> GetPlayerAsync(string email)
+        public Task<Player> GetPlayerAsync(string idOrEmail)
         {
-            return Sanity.DocumentSet<Player>().Where(p => p.Email == email).FirstOrDefaultAsync();
+            if (Guid.TryParse(idOrEmail, out Guid id))
+            {
+                return Sanity.DocumentSet<Player>().Where(p => p.Id == id.ToString()).FirstOrDefaultAsync();
+            }
+            return Sanity.DocumentSet<Player>().Where(p => p.Email == idOrEmail).FirstOrDefaultAsync();
         }
 
         public Task<Player> GetPlayerByPersonIdAsync(int personId)

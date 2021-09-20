@@ -8,6 +8,12 @@ namespace Buk.Gaming.Models
     {
         public string PlayerId { get; set; }
 
-        public string Type { get; set; }
+        public InvitationType Type { get; set; }
+    }
+
+    public enum InvitationType
+    {
+        Request,
+        Invitation
     }
 }

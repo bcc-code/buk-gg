@@ -34,14 +34,13 @@ namespace Buk.Gaming.Sanity
 
         public async Task SaveOrganizationAsync(Organization organization)
         {
-            var org = organization.ToSanity();
-            if (string.IsNullOrEmpty(org.Id))
+            if (string.IsNullOrEmpty(organization.Id))
             {
-                org.Id = Guid.NewGuid().ToString();
-                await Sanity.DocumentSet<SanityOrganization>().Create(org).CommitAsync();
+                organization.Id = Guid.NewGuid().ToString();
+                await Sanity.DocumentSet<SanityOrganization>().Create(organization.ToSanity()).CommitAsync();
             } else
             {
-                await Sanity.DocumentSet<SanityOrganization>().Update(org).CommitAsync();
+                await Sanity.DocumentSet<SanityOrganization>().Update(organization.ToSanity()).CommitAsync();
             }
         }
     }

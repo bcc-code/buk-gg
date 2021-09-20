@@ -14,6 +14,8 @@ namespace Buk.Gaming.Classes
 
         public readonly string Value;
 
+        public int Strength => _strengths.GetValueOrDefault(this);
+
         public static Role Member => new("member");
 
         public static Role Officer => new("officer");
@@ -21,6 +23,14 @@ namespace Buk.Gaming.Classes
         public static Role Owner => new("owner");
 
         public static Role Captain => new("captain");
+
+        private readonly static Dictionary<Role, int> _strengths = new()
+        {
+            [Member] = 1,
+            [Captain] = 2,
+            [Owner] = 3,
+            [Captain] = 3,
+        };
 
         public override string ToString() => Value;
 

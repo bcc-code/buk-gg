@@ -8,7 +8,7 @@ namespace Buk.Gaming.Repositories
 {
     public interface IPlayerRepository
     {
-        Task<Player> GetPlayerAsync(string email);
+        Task<Player> GetPlayerAsync(string idOrEmail);
 
         Task<Player> GetPlayerByPersonIdAsync(int personId);
 
