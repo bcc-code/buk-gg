@@ -31,7 +31,7 @@ namespace Buk.Gaming.Sanity.Extensions
                 {
                     Ref = i.PlayerId
                 },
-                Type = i.Type,
+                Type = i.Type.ToString(),
             }).ToList(),
         };
 

@@ -79,5 +79,7 @@ namespace Buk.Gaming.Models
         public bool Equals(SignupType other) => other.Value == Value;
 
         public override bool Equals(object obj) => Equals(obj as SignupType);
+
+        public override int GetHashCode() => Value.GetHashCode();
     }
 }

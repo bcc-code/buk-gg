@@ -42,7 +42,7 @@ namespace Buk.Gaming.Web.Providers
 
         public async Task<DiscordUser> SyncUserAsync(Player user)
         {
-            List<Organization> organizations = (await _organizations.GetAllOrganizationsAsync()).Where(o => o.Members.FirstOrDefault(m => m.Player.Id == user.Id) != null).ToList();
+            List<Organization> organizations = (await _organizations.GetOrganizationsAsync()).Where(o => o.Members.FirstOrDefault(m => m.PlayerId == user.Id) != null).ToList();
 
             var serialize = JsonConvert.SerializeObject(new { player = user, organizations }, new JsonSerializerSettings
             {

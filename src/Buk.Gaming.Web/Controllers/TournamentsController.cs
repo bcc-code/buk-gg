@@ -23,11 +23,15 @@ namespace Buk.Gaming.Web.Controllers
     {
         private readonly ToornamentClient _toornamentClient;
         private readonly ITournamentService _tournaments;
+        private readonly IPlayerService _players;
+        private readonly ITeamService _teams;
 
-        public TournamentsController(ISessionProvider session, ToornamentClient toornament, ITournamentService tournaments): base(session)
+        public TournamentsController(ISessionProvider session, ToornamentClient toornament, ITournamentService tournaments, IPlayerService players, ITeamService teams): base(session)
         {
             _toornamentClient = toornament;
             _tournaments = tournaments;
+            _players = players;
+            _teams = teams;
         }
 
         [Route("")]
@@ -53,9 +57,23 @@ namespace Buk.Gaming.Web.Controllers
         {
             await Session.GetCurrentUser();
 
-            var participants = await _tournaments.GetParticipantsAsync(tournamentId);
+            List<ParticipantView> participants = new();
 
-            return Ok(participants.participants.Select(p => p.Type.Equals(ParticipantType.Player) ? p.View(participants.players.FirstOrDefault(i => i.Id == p.Id)) : p.View(participants.teams.FirstOrDefault(i => i.Id == p.Id))).ToList());
+            foreach (var participant in await _tournaments.GetParticipantsAsync(tournamentId))
+            {
+                if (participant.Type.Equals(ParticipantType.Player))
+                {
+                    participants.Add(participant.View(await _players.GetPlayerAsync(participant.Id)));
+                } else if (participant.Type.Equals(ParticipantType.Team))
+                {
+                    participants.Add(
+                        participant.View(await _teams.GetTeamAsync(participant.Id), 
+                        await _teams.GetPlayersAsync(participant.Id))
+                    );
+                }
+            }
+
+            return Ok(participants);
         }
 
         [Route("{tournamentId/Participants")]

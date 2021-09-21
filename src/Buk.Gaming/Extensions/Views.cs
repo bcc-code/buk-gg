@@ -78,13 +78,13 @@ namespace Buk.Gaming.Extensions
             Winner = teams?.FirstOrDefault(t => t.Id == i.WinnerId)?.View(),
         };
 
-        public static ParticipantView View(this Participant i, Team team = null) => new()
+        public static ParticipantView View(this Participant i, Team team = null, Dictionary<string, Player> players = null) => new()
         {
             Id = i.Id,
             Information = i.Information,
             ToornamentId = i.ToornamentId,
             Type = i.Type.ToString(),
-            Team = team?.View(),
+            Team = team?.View(players),
         };
 
         public static ParticipantView View(this Participant i, Player player) => new()
