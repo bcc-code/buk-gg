@@ -17,11 +17,21 @@ namespace Buk.Gaming.Web.Services
     {
         private readonly ITeamRepository _teams;
         private readonly IOrganizationService _organizations;
+        private readonly IPlayerService _players;
 
-        public TeamService(IMemoryCache cache, ISessionProvider session, ITeamRepository teams, IOrganizationService organizations): base(cache, session)
+        public TeamService(IMemoryCache cache, ISessionProvider session, ITeamRepository teams, IOrganizationService organizations, IPlayerService players): base(cache, session)
         {
             _teams = teams;
             _organizations = organizations;
+            _players = players;
+        }
+
+        public Task<Dictionary<string, Team>> GetTeamsAsync()
+        {
+            return Cache.WithSemaphoreAsync("TEAMS", async () =>
+            {
+                return (await _teams.GetTeamsAsync()).ToDictionary(t => t.Id, t => t);
+            });
         }
 
         public async Task<Team> CreateTeamAsync(Team.CreateOptions options)
@@ -50,41 +60,37 @@ namespace Buk.Gaming.Web.Services
                 Name = options.Name,
             };
 
-            await _teams.SaveOrCreateTeamAsync(team);
+            await _teams.SaveTeamAsync(team);
+
+            var teams = await GetTeamsAsync();
+
+            teams[team.Id] = team;
 
             return team;
         }
 
-        public Task<Team> GetTeamAsync(string teamId)
+        public async Task<Team> GetTeamAsync(string teamId)
         {
-            return Cache.WithSemaphoreAsync("TEAM_" + teamId, async () =>
-            {
-                return await _teams.GetTeamAsync(teamId);
-            }, TimeSpan.FromSeconds(5));
+            return (await GetTeamsAsync()).GetValueOrDefault(teamId) ?? throw new Exception("Team not found");
         }
 
-        public Task<List<Team>> GetTeamsInOrganizationAsync(string organizationId)
+        public async Task<List<Team>> GetTeamsInOrganizationAsync(string organizationId)
         {
-            return Cache.WithSemaphoreAsync("TEAMS_ORGANIZATION_" + organizationId, async () =>
-            {
-                return await _teams.GetTeamsForOrganizationAsync(organizationId);
-            }, TimeSpan.FromMinutes(1));
+            return (await GetTeamsAsync()).Values.Where(i => i.OrganizationId == organizationId).ToList();
         }
 
-        public Task<List<Team>> GetTeamsInGameAsync(string gameId)
+        public async Task<List<Team>> GetTeamsInGameAsync(string gameId)
         {
-            return Cache.WithSemaphoreAsync("TEAMS_GAME_" + gameId, async () =>
-            {
-                return await _teams.GetTeamsForGameAsync(gameId);
-            }, TimeSpan.FromMinutes(1));
+            return (await GetTeamsAsync()).Values.Where(i => i.GameId == gameId).ToList();
         }
 
-        public Task<List<Team>> GetTeamsInTournamentAsync(string tournamentId)
+        public async Task<Dictionary<string, Player>> GetPlayersAsync(string teamId)
         {
-            return Cache.WithSemaphoreAsync("TEAMS_TOURNAMENT_" + tournamentId, () => _teams.GetTeamsForTournamentAsync(tournamentId));
+            var team = await GetTeamAsync(teamId);
+            return (await _players.GetPlayersAsync()).Where(i => team.Members.Any(m => m.PlayerId == i.Key)).ToDictionary(p => p.Key, p => p.Value);
         }
 
-        public async Task AddPlayerAsync(string teamId, string playerId)
+        public async Task AddPlayersAsync(string teamId, IEnumerable<string> playerIds)
         {
             var user = await Session.GetCurrentUser();
             var team = await GetTeamAsync(teamId);
@@ -97,23 +103,26 @@ namespace Buk.Gaming.Web.Services
                 throw new Exception("User can't do this");
             }
 
-            var member = org.Members.FirstOrDefault(m => m.PlayerId == playerId);
-
-            if (member == null)
+            foreach (var playerId in playerIds)
             {
-                throw new Exception("Player must be in organization");
+                var member = org.Members.FirstOrDefault(m => m.PlayerId == playerId);
+
+                if (member == null)
+                {
+                    throw new Exception("Player must be in organization");
+                }
+
+                team.Members.Add(new()
+                {
+                    PlayerId = playerId,
+                    Role = Role.Member
+                });
             }
 
-            team.Members.Add(new()
-            {
-                PlayerId = playerId,
-                Role = Role.Member
-            });
-
-            await _teams.SaveOrCreateTeamAsync(team);
+            await _teams.SaveTeamAsync(team);
         }
 
-        public async Task RemovePlayerAsync(string teamId, string playerId)
+        public async Task RemovePlayersAsync(string teamId, IEnumerable<string> playerIds)
         {
             var user = await Session.GetCurrentUser();
             var team = await GetTeamAsync(teamId);
@@ -125,17 +134,20 @@ namespace Buk.Gaming.Web.Services
             {
                 throw new Exception("User can't do this");
             }
-
-            var member = team.Members.FirstOrDefault(m => m.PlayerId == playerId);
-
-            if (member == null)
+            
+            foreach (var playerId in playerIds)
             {
-                throw new Exception("Player not in team");
+                var member = team.Members.FirstOrDefault(m => m.PlayerId == playerId);
+
+                if (member == null)
+                {
+                    throw new Exception("Player not in team");
+                }
+
+                team.Members.Remove(member);
             }
 
-            team.Members.Remove(member);
-
-            await _teams.SaveOrCreateTeamAsync(team);
+            await _teams.SaveTeamAsync(team);
         }
 
         public async Task SetCaptainAsync(string teamId, string playerId)
@@ -184,7 +196,35 @@ namespace Buk.Gaming.Web.Services
                 member.Role = Role.Captain;
             }
 
-            await _teams.SaveOrCreateTeamAsync(team);
+            await _teams.SaveTeamAsync(team);
+        }
+
+        public async Task UpdateTeamAsync(string teamId, Team.UpdateOptions options)
+        {
+            var user = await Session.GetCurrentUser();
+            var team = await GetTeamAsync(teamId);
+
+            bool isCaptain = team.Members.Any(m => m.PlayerId == user.Id && m.Role.Equals(Role.Captain));
+            var org = await _organizations.GetOrganizationAsync(team.OrganizationId);
+
+            if (!(isCaptain || org.Members.Any(m => m.PlayerId == user.Id && m.Role.Strength >= Role.Officer.Strength)))
+            {
+                throw new Exception("User can't do this");
+            }
+
+            if (options.CaptainId != null)
+            {
+                await SetCaptainAsync(teamId, options.CaptainId);
+            }
+            if (options.Name != null)
+            {
+                if (team.Name != options.Name)
+                {
+                    team.Name = options.Name;
+                }
+            }
+
+            await _teams.SaveTeamAsync(team);
         }
     }
 }

@@ -10,6 +10,8 @@ namespace Buk.Gaming.Services
     {
         Task<Organization> GetOrganizationAsync(string id);
 
+        Task<List<Organization>> GetOrganizationsAsync(bool includePublic = false);
+
         Task<Organization> CreateOrganizationAsync(Organization.CreateOptions options);
 
         Task DeleteOrganizationAsync(string id);

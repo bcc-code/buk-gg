@@ -59,7 +59,7 @@ namespace Buk.Gaming.Models
         public int Min { get; set; }
     }
 
-    public class SignupType
+    public class SignupType : IEquatable<SignupType>
     {
         private SignupType(string value)
         {
@@ -70,9 +70,14 @@ namespace Buk.Gaming.Models
 
         public static readonly SignupType Player = new("player");
         public static readonly SignupType Team = new("team");
+        public static readonly SignupType None = new("none");
 
         public override string ToString() => Value;
 
         public static SignupType Validate(string value) => value == Player.ToString() ? Player : Team;
+
+        public bool Equals(SignupType other) => other.Value == Value;
+
+        public override bool Equals(object obj) => Equals(obj as SignupType);
     }
 }

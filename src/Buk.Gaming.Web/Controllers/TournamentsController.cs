@@ -55,7 +55,23 @@ namespace Buk.Gaming.Web.Controllers
 
             var participants = await _tournaments.GetParticipantsAsync(tournamentId);
 
-            return Ok(participants.participants.Select(p => p.View(participants.players.FirstOrDefault(i => i.Id == p.Id))).ToList());
+            return Ok(participants.participants.Select(p => p.Type.Equals(ParticipantType.Player) ? p.View(participants.players.FirstOrDefault(i => i.Id == p.Id)) : p.View(participants.teams.FirstOrDefault(i => i.Id == p.Id))).ToList());
+        }
+
+        [Route("{tournamentId/Participants")]
+        [HttpPost]
+        public async Task<IActionResult> RegisterAsync(string tournamentId, [FromBody] List<string> information)
+        {
+            await _tournaments.RegisterAsync(tournamentId, information);
+            return Ok();
+        }
+
+        [Route("{tournamentId}/Participants/{teamId}")]
+        [HttpPost]
+        public async Task<IActionResult> RegisterAsync(string tournamentId, string teamId, [FromBody] List<string> information)
+        {
+            await _tournaments.RegisterTeamAsync(tournamentId, teamId, information);
+            return Ok();
         }
     }
 }

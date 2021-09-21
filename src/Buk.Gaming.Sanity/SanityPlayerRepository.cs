@@ -1,5 +1,8 @@
 ﻿using Buk.Gaming.Models;
 using Buk.Gaming.Repositories;
+using Buk.Gaming.Sanity.Extensions;
+using Buk.Gaming.Sanity.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Sanity.Linq;
 using System;
 using System.Collections.Generic;
@@ -9,14 +12,12 @@ using System.Threading.Tasks;
 
 namespace Buk.Gaming.Sanity
 {
-    public class SanityPlayerRepository : IPlayerRepository
+    public class SanityPlayerRepository : SanityRepository, IPlayerRepository
     {
-        public SanityPlayerRepository(SanityDataContext sanity)
+        public SanityPlayerRepository(SanityDataContext sanity, IMemoryCache memoryCache) : base(sanity, memoryCache)
         {
-            Sanity = sanity;
-        }
 
-        public SanityDataContext Sanity { get; }
+        }
 
         public Task DeletePlayerAsync(string id)
         {
@@ -39,6 +40,13 @@ namespace Buk.Gaming.Sanity
                 return Task.FromResult<Player>(null);
             }
             return Sanity.DocumentSet<Player>().Where(p => p.PersonId == personId).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Player>> GetPlayersAsync()
+        {
+            var lastActive = DateTime.UtcNow.AddYears(-1);
+
+            return (await Sanity.Client.FetchAsync<List<SanityPlayer>>("*[_type == 'player' && dateLastActive < $lastActive]", new { lastActive })).Result.Select(p => p.ToPlayer()).ToList();
         }
 
         public async Task<Player> SavePlayerAsync(Player user)

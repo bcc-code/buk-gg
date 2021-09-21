@@ -8,16 +8,10 @@ namespace Buk.Gaming.Repositories
 {
     public interface ITeamRepository
     {
-        Task<List<Team>> GetTeamsForOrganizationAsync(string organizationId);
+        Task<List<Team>> GetTeamsAsync();
 
-        Task<List<Team>> GetTeamsForOrganizationsAsync(IEnumerable<string> organizationIds);
+        Task SaveTeamAsync(Team team);
 
-        Task<List<Team>> GetTeamsForGameAsync(string gameId);
-
-        Task<List<Team>> GetTeamsForTournamentAsync(string tournamentId);
-
-        Task<Team> GetTeamAsync(string teamId);
-
-        Task SaveOrCreateTeamAsync(Team team);
+        Task DeleteTeamAsync(string teamId);
     }
 }

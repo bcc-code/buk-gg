@@ -42,6 +42,17 @@ namespace Buk.Gaming.Models
 
         public bool IsRegistered => DateRegistered != default;
 
+        public class UpdateOptions
+        {
+            public string Nickname { get; set; }
+
+            public string PhoneNumber { get; set; }
+
+            public string DiscordId { get; set; }
+
+            public string DiscordUser { get; set; }
+        }
+
         public class ExtraDiscordUser
         {
             public string Name { get; set; }

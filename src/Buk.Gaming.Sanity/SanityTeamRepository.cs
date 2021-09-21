@@ -20,32 +20,12 @@ namespace Buk.Gaming.Sanity {
 
         }
 
-        public async Task<Team> GetTeamAsync(string id)
+        public async Task<List<Team>> GetTeamsAsync()
         {
-            return (await Sanity.DocumentSet<SanityTeam>().GetAsync(id))?.ToTeam();
+            return (await Sanity.DocumentSet<SanityTeam>().ToListAsync()).Select(i => i.ToTeam()).ToList();
         }
 
-        public async Task<List<Team>> GetTeamsForOrganizationAsync(string organizationId)
-        {
-            return (await Sanity.DocumentSet<SanityTeam>().Where(i => i.Organization.Ref == organizationId).ToListAsync()).Select(i => i.ToTeam()).ToList();
-        }
-
-        public async Task<List<Team>> GetTeamsForOrganizationsAsync(IEnumerable<string> organizationIds)
-        {
-            return (await Sanity.DocumentSet<SanityTeam>().Where(i => organizationIds.Contains(i.Organization.Ref)).ToListAsync()).Select(i => i.ToTeam()).ToList();
-        }
-
-        public async Task<List<Team>> GetTeamsForGameAsync(string gameId)
-        {
-            return (await Sanity.DocumentSet<SanityTeam>().Where(i => i.Game.Ref == gameId).ToListAsync()).Select(i => i.ToTeam()).ToList();
-        }
-
-        public async Task<List<Team>> GetTeamsForTournamentAsync(string tournamentId)
-        {
-            return (await Sanity.Client.FetchAsync<List<SanityTeam>>($"*[_type == 'team' && _id in *[_type == 'tournament' && _id == '{tournamentId}'][0].teams[].team._ref]")).Result.Select(i => i.ToTeam()).ToList();
-        }
-
-        public async Task SaveOrCreateTeamAsync(Team team)
+        public async Task SaveTeamAsync(Team team)
         {
             if (string.IsNullOrEmpty(team.Id))
             {
@@ -56,6 +36,11 @@ namespace Buk.Gaming.Sanity {
             {
                 await Sanity.DocumentSet<SanityTeam>().Update(team.ToSanity()).CommitAsync();
             }
+        }
+
+        public async Task DeleteTeamAsync(string teamId)
+        {
+            await Sanity.DocumentSet<SanityTeam>().DeleteById(teamId).CommitAsync();
         }
     }
 }

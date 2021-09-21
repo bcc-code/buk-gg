@@ -15,13 +15,6 @@ namespace Buk.Gaming.Repositories
         Task<List<Organization>> GetOrganizationsAsync();
 
         /// <summary>
-        /// Return organization with this Id
-        /// </summary>
-        /// <param name="organizationId"></param>
-        /// <returns></returns>
-        Task<Organization> GetOrganizationAsync(string organizationId);
-
-        /// <summary>
         /// Save organization
         /// </summary>
         /// <param name="organization"></param>

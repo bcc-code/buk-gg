@@ -26,5 +26,12 @@ namespace Buk.Gaming.Models
 
             public string GameId { get; set; }
         }
+
+        public class UpdateOptions
+        {
+            public string Name { get; set; }
+
+            public string CaptainId { get; set;}
+        }
     }
 }

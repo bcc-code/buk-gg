@@ -8,119 +8,109 @@ using Buk.Gaming.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Buk.Gaming.Services;
+using Buk.Gaming.Extensions;
+using Buk.Gaming.Models.Views;
 
 namespace Buk.Gaming.Web.Controllers
 {
     [Authorize]
-    [Route("api/teams")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class TeamsController : ControllerBase
+    public class TeamsController : BaseControllerBase
     {
-        public TeamsController(ITeamRepository teamRepository, ISessionProvider session)
-        {
-            TeamRepository = teamRepository;
-            Session = session;
-        }
+        private readonly ITeamService _teams;
+        private readonly IOrganizationService _organizations;
 
-        public ITeamRepository TeamRepository { get; }
-        public ISessionProvider Session { get; }
+        public TeamsController(ISessionProvider session, ITeamService teams, IOrganizationService organizations): base(session)
+        {
+            _teams = teams;
+            _organizations = organizations;
+        }
 
         [Route("")]
         [HttpGet]
-        public async Task<IActionResult> GetTeams()
+        public async Task<IActionResult> GetTeamsAsync()
         {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
+            await Session.GetCurrentUser();
+            List<Team> teams = new();
+
+            var orgs = await _organizations.GetOrganizationsAsync();
+
+            foreach (var org in orgs)
             {
-                return Unauthorized();
+                teams.AddRange(await _teams.GetTeamsInOrganizationAsync(org.Id));
             }
 
-            var teams = await TeamRepository.GetTeamsAsync();
-
-            var myTeams = teams.Where(t => t.Players?.Any(i => i.Id == user.Id) == true || t.Captain?.Id == user.Id).ToArray();
-
-            return Ok(myTeams);
+            return Ok(teams.Select(i => i.View()));
         }
 
-        [Route("{organizationId}")]
-        [HttpGet]
-        public async Task<IActionResult> GetTeamsInOrganizationAsync(string organizationId)
-        {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var teams = await TeamRepository.GetTeamsAsync();
-
-            var orgTeams = teams?.Where(t => t.Organization.Id == organizationId).ToArray();
-
-            return Ok(orgTeams ?? default);
-        }
-
-        [Route("game/{gameId}")]
+        [Route("Game/{gameId}")]
         [HttpGet]
         public async Task<IActionResult> GetTeamsInGameAsync(string gameId)
         {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            return Ok(await TeamRepository.GetTeamsInGameAsync(gameId));
-        }
+            await Session.GetCurrentUser();
+            List<TeamView> teams = new();
 
-        [Route("add")]
-        [HttpPut]
-        public async Task<IActionResult> AddTeamAsync([FromBody]Team team)
-        {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
+            foreach (var t in await _teams.GetTeamsInGameAsync(gameId))
             {
-                return Unauthorized();
-            }
-            return Ok(await TeamRepository.AddTeamAsync(user, team));
-        }
-
-        [Route("update")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateTeamAsync([FromBody]Team team)
-        {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
+                teams.Add(t.View(await _teams.GetPlayersAsync(t.Id)));
             }
 
-            var t = await TeamRepository.UpdateTeamAsync(user, team);
-
-            return Ok(t);
+            return Ok(teams);
         }
 
-        [Route("delete/{teamId}")]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteTeamAsync(string teamId)
-        {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            return Ok(await TeamRepository.DeleteTeamAsync(user, teamId));
-        }
-
-        [Route("games")]
+        [Route("Organization/{organizationId}")]
         [HttpGet]
-        public async Task<IActionResult> GetGamesAsync()
+        public async Task<IActionResult> GetTeamsInOrganizationAsync(string organizationId)
         {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
+            await Session.GetCurrentUser();
+            List<TeamView> teams = new();
+
+            foreach (var t in await _teams.GetTeamsInOrganizationAsync(organizationId))
             {
-                return Unauthorized();
+                teams.Add(t.View(await _teams.GetPlayersAsync(t.Id)));
             }
-            return Ok(await TeamRepository.GetGamesAsync());
+
+            return Ok(teams);
         }
 
+        [Route("")]
+        [HttpPost]
+        public async Task<IActionResult> CreateTeamAsync([FromBody] Team.CreateOptions options)
+        {
+            return Ok(await _teams.CreateTeamAsync(options));
+        }
+
+        [Route("{teamId}")]
+        [HttpDelete]
+        public Task<IActionResult> DeleteTeamAsync(string teamId)
+        {
+            throw new NotImplementedException();
+        }
+
+        [Route("{teamId}/Players")]
+        [HttpPost]
+        public async Task<IActionResult> AddPlayersAsync(string teamId, [FromBody] List<string> playerIds)
+        {
+            await _teams.AddPlayersAsync(teamId, playerIds);
+            return Ok();
+        }
+
+        [Route("{teamId}/Players")]
+        [HttpPatch]
+        public async Task<IActionResult> RemovePlayersAsync(string teamId, [FromBody] List<string> playerIds)
+        {
+            await _teams.RemovePlayersAsync(teamId, playerIds);
+            return Ok();
+        }
+
+        [Route("{teamId}")]
+        [HttpPatch]
+        public async Task<IActionResult> UpdateTeamAsync(string teamId, [FromBody] Team.UpdateOptions options)
+        {
+            await _teams.UpdateTeamAsync(teamId, options);
+            return Ok();
+        } 
     }
 }

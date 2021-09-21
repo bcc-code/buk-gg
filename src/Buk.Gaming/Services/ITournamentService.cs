@@ -12,10 +12,10 @@ namespace Buk.Gaming.Services
 
         Task<List<Team>> GetTeamsAsync(string tournamentId);
 
-        Task<(List<Participant> participants, List<Player> players)> GetParticipantsAsync(string tournamentId);
+        Task<(List<Participant> participants, List<Player> players, List<Team> teams)> GetParticipantsAsync(string tournamentId);
 
-        Task RegisterAsync(string tournamentId, string information = null);
+        Task RegisterAsync(string tournamentId, List<string> information = null);
 
-        Task RegisterTeamAsync(string tournamentId, string teamId, string information = null);
+        Task RegisterTeamAsync(string tournamentId, string teamId, List<string> information = null);
     }
 }

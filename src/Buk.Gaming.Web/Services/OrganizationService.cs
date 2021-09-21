@@ -15,9 +15,9 @@ namespace Buk.Gaming.Web.Services
     public class OrganizationService : BaseService, IOrganizationService
     {
         private readonly IOrganizationRepository _organizations;
-        private readonly IPlayerRepository _players;
+        private readonly IPlayerService _players;
 
-        public OrganizationService(IMemoryCache cache, ISessionProvider session, IOrganizationRepository organizations, IPlayerRepository players): base(cache, session)
+        public OrganizationService(IMemoryCache cache, ISessionProvider session, IOrganizationRepository organizations, IPlayerService players): base(cache, session)
         {
             _organizations = organizations;
             _players = players;
@@ -31,6 +31,23 @@ namespace Buk.Gaming.Web.Services
 
                 return orgs.ToDictionary(o => o.Id, o => o);
             }, TimeSpan.FromMinutes(30));
+        }
+
+        public async Task<List<Organization>> GetOrganizationsAsync(bool includePublic)
+        {
+            var user = await Session.GetCurrentUser();
+            var orgs = await GetAllOrganizationsAsync();
+
+            return orgs.Values.Where(i => (includePublic && i.IsPublic) || i.Members.Any(m => m.PlayerId == user.Id)).ToList();
+        }
+
+        public async Task<List<Player>> GetPlayersAsync(string organizationId)
+        {
+            var org = await GetOrganizationAsync(organizationId);
+
+            var players = await _players.GetPlayersAsync();
+
+            return org.Members.Select(p => players.GetValueOrDefault(p.PlayerId)).Where(i => i != null).ToList();
         }
 
         public async Task<Organization> GetOrganizationAsync(string id) => (await GetAllOrganizationsAsync()).GetValueOrDefault(id) ?? throw new Exception("Organization not found");
