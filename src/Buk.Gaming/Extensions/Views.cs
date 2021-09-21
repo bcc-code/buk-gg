@@ -75,15 +75,25 @@ namespace Buk.Gaming.Extensions
             SignupType = i.SignupType.ToString(),
             Teams = teams?.Select(t => t.View()).ToList(),
             Title = i.Title.GetForCurrentCulture(),
-            Winner = i.Winner,
+            Winner = teams?.FirstOrDefault(t => t.Id == i.WinnerId)?.View(),
         };
 
-        public static ParticipantView View(this Participant i) => new()
+        public static ParticipantView View(this Participant i, Team team = null) => new()
         {
             Id = i.Id,
             Information = i.Information,
             ToornamentId = i.ToornamentId,
             Type = i.Type.ToString(),
+            Team = team?.View(),
+        };
+
+        public static ParticipantView View(this Participant i, Player player) => new()
+        {
+            Id = i.Id,
+            Information = i.Information,
+            ToornamentId = i.ToornamentId,
+            Type = i.Type.ToString(),
+            Player = player?.View(),
         };
     }
 }

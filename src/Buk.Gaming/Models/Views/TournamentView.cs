@@ -22,7 +22,7 @@ namespace Buk.Gaming.Models.Views
 
         public List<ContactView> Contacts { get; set; }
 
-        public string Winner { get; set; }
+        public TeamView Winner { get; set; }
 
         public string SignupType { get; set; }
 

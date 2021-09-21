@@ -81,7 +81,7 @@ namespace Buk.Gaming.Web.Services
 
         public Task<List<Team>> GetTeamsInTournamentAsync(string tournamentId)
         {
-            return _teams.GetTeamsForTournamentAsync(tournamentId);
+            return Cache.WithSemaphoreAsync("TEAMS_TOURNAMENT_" + tournamentId, () => _teams.GetTeamsForTournamentAsync(tournamentId));
         }
 
         public async Task AddPlayerAsync(string teamId, string playerId)

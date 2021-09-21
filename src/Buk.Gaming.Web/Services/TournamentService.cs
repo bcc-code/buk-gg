@@ -40,7 +40,7 @@ namespace Buk.Gaming.Web.Services
 
 
 
-            return new(tournament.Participants, tournament.SignupType == "player" ? await _players.GetPlayersAsync(tournament.Participants.Select(i => i.Id)) : null);
+            return new(tournament.Participants, tournament.SignupType.Value == SignupType.Player.Value ? await _players.GetPlayersAsync(tournament.Participants.Select(i => i.Id)) : null);
         }
 
         public async Task<Tournament> GetTournamentAsync(string tournamentId)
@@ -58,7 +58,10 @@ namespace Buk.Gaming.Web.Services
 
         public Task<List<Tournament>> GetTournamentsAsync()
         {
-            throw new NotImplementedException();
+            return Cache.WithSemaphoreAsync("TOURNAMENTS", async () =>
+            {
+                return await _tournaments.GetTournamentsAsync();
+            }, TimeSpan.FromMinutes(30));
         }
         
         public Task RegisterAsync(string tournamentId, string information = null)
