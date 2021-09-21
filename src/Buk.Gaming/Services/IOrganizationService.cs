@@ -18,10 +18,8 @@ namespace Buk.Gaming.Services
 
         Task DeleteOrganizationAsync(string id);
 
-        Task AddMemberAsync(string organizationId, string playerId);
+        Task EditMembersAsync(string organizationId, Organization.MemberOptions options);
 
         Task AskToJoinAsync(string organizationId);
-
-        Task AcceptRequestAsync(string organizationId, string invitationId);
     }
 }

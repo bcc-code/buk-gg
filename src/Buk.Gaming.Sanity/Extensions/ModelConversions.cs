@@ -1,4 +1,5 @@
 ﻿using Buk.Gaming.Classes;
+using Buk.Gaming.Extensions;
 using Buk.Gaming.Models;
 using Buk.Gaming.Sanity.Models;
 using Sanity.Linq.BlockContent;
@@ -14,7 +15,7 @@ namespace Buk.Gaming.Sanity.Extensions
     {
         public static Team ToTeam(this SanityTeam team)
         {
-            List<Member> members = new();
+            MemberList members = new();
 
             members.Add(new()
             {
@@ -139,7 +140,7 @@ namespace Buk.Gaming.Sanity.Extensions
             Image = i.Image?.Asset?.Value?.Url,
             Invitations = i.Pending?.Select(p => p.ToInvitation()).ToList(),
             IsPublic = i.IsPublic,
-            Members = i.Members?.Select(m => m.ToMember()).ToList(),
+            Members = i.Members?.Select(m => m.ToMember()).ToMemberList(),
             Name = i.Name,
         };
 

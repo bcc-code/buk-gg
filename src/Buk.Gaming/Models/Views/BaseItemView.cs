@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Buk.Gaming.Models.Views
 {
-    public class BaseItemView
+    public abstract class BaseItemView
     {
         public string Id { get; set; }
 

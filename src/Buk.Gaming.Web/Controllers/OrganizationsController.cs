@@ -45,5 +45,20 @@ namespace Buk.Gaming.Web.Controllers
             await _organizations.UpdateOrganizationAsync(organizationId, options);
             return Ok();
         }
+
+        [Route("{organizationId}/Join")]
+        [HttpGet]
+        public async Task<IActionResult> RequestJoinOrganizationAsync(string organizationId)
+        {
+            await _organizations.AskToJoinAsync(organizationId);
+            return Ok();
+        }
+
+        [Route("{organizationId}/Members")]
+        [HttpPatch]
+        public async Task<IActionResult> EditMembersAsync(string organizationId, [FromBody] Organization.MemberOptions options)
+        {
+
+        }
     }
 }

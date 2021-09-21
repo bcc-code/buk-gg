@@ -97,41 +97,50 @@ namespace Buk.Gaming.Web.Services
             await _organizations.SaveOrganizationAsync(org);
         }
 
-        public async Task AddMemberAsync(string organizationId, string playerId)
+        public async Task EditMembersAsync(string organizationId, Organization.MemberOptions options)
         {
-            var user = await Session.GetCurrentUser();
-            if (user == null)
+            var (member, org) = await GetOrganizationWithAccessAndMemberAsync(organizationId, 2);
+
+            if (options.RemoveMembers != null)
             {
-                throw new Exception("User not found");
-            }
-
-            if (playerId == user.Id)
-            {
-                throw new Exception("User can't do this");
-            }
-
-            var player = await _players.GetPlayerAsync(playerId);
-            if (player == null)
-            {
-                throw new Exception("Player not found");
-            }
-
-            var org = await GetOrganizationAsync(organizationId);
-
-            var member = org.Members.FirstOrDefault(m => m.PlayerId == user.Id);
-
-            if (member.Role.Strength < 2)
-            {
-                throw new Exception("User has no access");
-            }
-
-            if (!org.Members.Any(m => m.PlayerId == playerId))
-            {
-                org.Members.Add(new()
+                foreach (var id in options.RemoveMembers)
                 {
-                    PlayerId = player.Id,
-                    Role = Role.Member,
-                });
+                    var i = org.Members.Get(id);
+
+                    if (i.Role.Strength >= member.Role.Strength)
+                    {
+                        throw new Exception("Can't edit users with higher rolestrength");
+                    }
+
+                    org.Members.Remove(i);
+                }
+            }
+            if (options.AddMembers != null)
+            {
+                foreach (var id in options.AddMembers)
+                {
+                    if (org.Members.Has(id))
+                    {
+                        throw new Exception("Member already exists");
+                    }
+
+                    var player = await _players.GetPlayerAsync(id);
+
+                    org.Members.Add(new()
+                    {
+                        PlayerId = player.Id,
+                        Role = Role.Member,
+                    });
+                }
+            }
+            if (options.RoleAssignments != null)
+            {
+                foreach (var entry in options.RoleAssignments)
+                {
+                    var i = org.Members.Get(entry.Key);
+
+                    i.Role = Role.Validate(entry.Value);
+                }
             }
 
             await _organizations.SaveOrganizationAsync(org);
@@ -229,18 +238,25 @@ namespace Buk.Gaming.Web.Services
             throw new NotImplementedException();
         }
 
-        private async Task<Organization> GetOrganizationWithAccessAsync(string organizationId)
+        private async Task<(Member Member, Organization Organization)> GetOrganizationWithAccessAndMemberAsync(string organizationId, int strength = 3)
         {
             var user = await Session.GetCurrentUser();
 
             Organization org = await GetOrganizationAsync(organizationId);
 
-            if (org.Members.FirstOrDefault(p => p.PlayerId == user.Id)?.Role.Strength < 3)
+            var member = org.Members.FirstOrDefault(p => p.PlayerId == user.Id);
+
+            if (member?.Role.Strength < strength)
             {
                 throw new Exception("No access");
             }
 
-            return org;
+            return new(member, org);
+        }
+
+        private async Task<Organization> GetOrganizationWithAccessAsync(string organizationId, int strength = 3)
+        {
+            return (await GetOrganizationWithAccessAndMemberAsync(organizationId, strength)).Organization;
         }
     }
 }

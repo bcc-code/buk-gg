@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using Buk.Gaming.Classes;
 
 namespace Buk.Gaming.Models
 {
@@ -14,7 +15,7 @@ namespace Buk.Gaming.Models
 
         public string GameId { get; set; }
 
-        public List<Member> Members { get; set; }
+        public MemberList Members { get; set; }
 
         public class CreateOptions
         {

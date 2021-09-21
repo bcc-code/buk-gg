@@ -4,12 +4,8 @@ using System.Text;
 
 namespace Buk.Gaming.Models.Views
 {
-    public class OrganizationView
+    public class OrganizationView : BaseItemView
     {
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
         public List<TeamView> Teams { get; set; }
 
         public List<MemberView> Members { get; set; }

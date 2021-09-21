@@ -1,3 +1,4 @@
+using Buk.Gaming.Classes;
 using System.Collections.Generic;
 
 namespace Buk.Gaming.Models
@@ -12,7 +13,7 @@ namespace Buk.Gaming.Models
 
         public string Image { get; set; }
 
-        public List<Member> Members { get; set; }
+        public MemberList Members { get; set; }
 
         public List<Invitation> Invitations { get; set; }
 
@@ -26,6 +27,15 @@ namespace Buk.Gaming.Models
             public string Name { get; set; }
 
             public string Image { get; set; }
+        }
+
+        public class MemberOptions
+        {
+            public List<string> AddMembers { get; set; }
+
+            public List<string> RemoveMembers { get; set; }
+
+            public Dictionary<string, string> RoleAssignments { get; set; }
         }
     }
 }
