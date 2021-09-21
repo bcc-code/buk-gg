@@ -27,6 +27,7 @@ namespace Buk.Gaming.Web.Controllers
         public ISessionProvider Session { get; }
 
         [Route("")]
+        [HttpGet]
         public async Task<IActionResult> GetEventsAsync()
         {
             if (await Session.GetCurrentUser() == null)
@@ -38,6 +39,7 @@ namespace Buk.Gaming.Web.Controllers
         }
 
         [Route("{eventId}")]
+        [HttpGet]
         public async Task<IActionResult> GetEventAsync(string eventId)
         {
             if (await Session.GetCurrentUser() == null)

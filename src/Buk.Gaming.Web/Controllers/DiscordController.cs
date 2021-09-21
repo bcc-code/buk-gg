@@ -15,7 +15,7 @@ namespace Buk.Gaming.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class DiscordController : Controller
+    public class DiscordController : ControllerBase
     {
         public DiscordController(ISessionProvider session, IDiscordProvider discord)
         {

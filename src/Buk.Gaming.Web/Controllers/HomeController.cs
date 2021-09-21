@@ -4,7 +4,7 @@ using System;
 
 namespace Buk.Gaming.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : ControllerBase
     {
         public static readonly string _version = DateTime.UtcNow.ToString();
 
@@ -14,6 +14,7 @@ namespace Buk.Gaming.Controllers
         }
 
         [Route("api/version")]
+        [HttpGet]
         public IActionResult Version()
         {
             return Ok(_version);

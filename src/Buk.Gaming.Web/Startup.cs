@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Net.Http.Headers;
 using Buk.Gaming.Services;
 using Buk.Gaming.Web.Services;
+using Microsoft.OpenApi.Models;
 
 namespace Buk.Gaming
 {
@@ -41,9 +42,6 @@ namespace Buk.Gaming
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
-            services.AddResponseCompression();
-
             services.AddCors(o =>
             {
                 o.AddDefaultPolicy(b =>
@@ -60,7 +58,14 @@ namespace Buk.Gaming
             // Infrastructure
             services.AddMemoryCache();
             services.AddOptions();
-            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddHttpClient();
+            services.AddHttpContextAccessor();
+
+            services.AddSwaggerGen(o =>
+            {
+                o.CustomSchemaIds(s => s.FullName);
+                o.MapType<object>(() => new OpenApiSchema { Type = "object" });
+            });
 
             // Toornament
             services.Configure<ToornamentOptions>(Configuration.GetSection("Toornament"));
@@ -84,7 +89,6 @@ namespace Buk.Gaming
             services.AddScoped<IOrganizationService, OrganizationService>();
             services.AddScoped<ITeamService, TeamService>();
             services.AddScoped<ITournamentService, TournamentService>();
-            services.AddHttpClient();
 
             if (Env.EnvironmentName == "Development")
             {
@@ -100,6 +104,8 @@ namespace Buk.Gaming
             services.AddScoped<IDiscordProvider, DiscordProvider>();
 
             ConfigureAuthentication(services);
+            services.AddControllers();
+
         }
 
         public virtual void ConfigureAuthentication(IServiceCollection services)
@@ -133,6 +139,7 @@ namespace Buk.Gaming
                     }
                 };
             });
+            services.AddAuthorization();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -163,6 +170,7 @@ namespace Buk.Gaming
                 new CultureInfo("en-AU"),
             };
 
+            app.UseSwagger();
             app.UseSwaggerUI();
 
             app.UseRequestLocalization(new RequestLocalizationOptions
@@ -180,8 +188,9 @@ namespace Buk.Gaming
             app.UseCors();
 
             app.UseRouting();
-            
+
             app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.UseEndpoints(e => e.MapControllers());

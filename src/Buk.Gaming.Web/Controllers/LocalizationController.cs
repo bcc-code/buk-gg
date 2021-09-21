@@ -10,7 +10,7 @@ namespace Buk.Gaming.Web.Controllers
 {
     [Authorize]
     [Route("api/localization")]
-    public class LocalizationController : Controller
+    public class LocalizationController : ControllerBase
     {
         public LocalizationController(ILocalizationService localization, ISessionProvider session) : base()
         {

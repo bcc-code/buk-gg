@@ -76,7 +76,7 @@ namespace Buk.Gaming.Web.Controllers
             return Ok(participants);
         }
 
-        [Route("{tournamentId/Participants")]
+        [Route("{tournamentId}/Participants")]
         [HttpPost]
         public async Task<IActionResult> RegisterAsync(string tournamentId, [FromBody] List<string> information)
         {
