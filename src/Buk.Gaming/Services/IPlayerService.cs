@@ -11,6 +11,8 @@ namespace Buk.Gaming.Services
     {
         Task<Player> GetPlayerByPersonIdAsync(int personId);
 
+        Task<Player> GetPlayerByEmailAsync(string email);
+
         Task<Player> GetPlayerAsync(string id);
 
         Task<Dictionary<string, Player>> GetPlayersAsync();

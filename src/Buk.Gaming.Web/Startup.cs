@@ -21,6 +21,8 @@ using Buk.Gaming.Repositories;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Net.Http.Headers;
+using Buk.Gaming.Services;
+using Buk.Gaming.Web.Services;
 
 namespace Buk.Gaming
 {
@@ -78,7 +80,10 @@ namespace Buk.Gaming
             services.AddScoped<IOrganizationRepository, SanityOrganizationRepository>();
             services.AddScoped<ITeamRepository, SanityTeamRepository>();
             services.AddScoped<IObjectRepository, SanityObjectRepository>();
-            services.AddScoped<PlayerService>();
+            services.AddScoped<IPlayerService, PlayerService>();
+            services.AddScoped<IOrganizationService, OrganizationService>();
+            services.AddScoped<ITeamService, TeamService>();
+            services.AddScoped<ITournamentService, TournamentService>();
             services.AddHttpClient();
 
             if (Env.EnvironmentName == "Development")

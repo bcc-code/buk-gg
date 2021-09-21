@@ -15,6 +15,7 @@ using Omu.ValueInjecter;
 using Buk.Gaming.Repositories;
 using System.Collections.Concurrent;
 using System.Threading;
+using Buk.Gaming.Services;
 
 namespace Buk.Gaming.Web.Providers
 {
@@ -23,7 +24,7 @@ namespace Buk.Gaming.Web.Providers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _memoryCache;
-        private readonly IPlayerRepository _players;
+        private readonly IPlayerService _players;
         private readonly IDiscordProvider _discord;
 
         private User _currentUser;
@@ -31,7 +32,7 @@ namespace Buk.Gaming.Web.Providers
 
         string[] Administrators { get; set; }
 
-        public SessionProvider(IHttpContextAccessor httpContextAccessor, IConfiguration configuration, IMemoryCache memoryCache, IPlayerRepository players, IDiscordProvider discord)
+        public SessionProvider(IHttpContextAccessor httpContextAccessor, IConfiguration configuration, IMemoryCache memoryCache, IPlayerService players, IDiscordProvider discord)
         {
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
@@ -115,7 +116,7 @@ namespace Buk.Gaming.Web.Providers
                                         }
                                         player.Email = userInfo.Email;
                                     }
-                                    player = await _players.SavePlayerAsync(player);
+                                    await _players.SavePlayerAsync(player);
                                     user.InjectFrom(player);
                                     user.CanImpersonate = isAdmin;
                                     user.IsAdministrator = isAdmin;
@@ -156,10 +157,10 @@ namespace Buk.Gaming.Web.Providers
                         u.Priority = CacheItemPriority.High;
                         u.SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
 
-                        var player = await _players.GetPlayerAsync(impersonateEmail);
+                        var player = await _players.GetPlayerByEmailAsync(impersonateEmail);
                         if (player == null)
                         {
-                            player = await _players.SavePlayerAsync(new Player { Email = impersonateEmail });
+                            throw new Exception("No user found");
                         }
                         var user = new User();
                         user.InjectFrom(player);

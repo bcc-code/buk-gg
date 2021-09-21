@@ -7,6 +7,7 @@ using Buk.Gaming.Web.Classes;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -192,9 +193,54 @@ namespace Buk.Gaming.Web.Services
             return org;
         }
 
+        public async Task UpdateOrganizationAsync(string id, Organization.UpdateOptions options)
+        {
+            var org = await GetOrganizationWithAccessAsync(id);
+
+            if (options.Name != null)
+            {
+                org.Name = options.Name;
+            }
+
+            if (options.Image != null)
+            {
+                byte[] bytes = Convert.FromBase64String(options.Image);
+
+                MemoryStream ms = new(bytes);
+
+                await _organizations.SetImageAsync(org, ms);
+            }
+
+            else
+            {
+                await _organizations.SaveOrganizationAsync(org);
+            }
+        }
+
+        public async Task SetOrganizationImageAsync(string organizationId, Stream image)
+        {
+            var org = await GetOrganizationWithAccessAsync(organizationId);
+
+            await _organizations.SetImageAsync(org, image);
+        }
+
         public Task DeleteOrganizationAsync(string id)
         {
             throw new NotImplementedException();
+        }
+
+        private async Task<Organization> GetOrganizationWithAccessAsync(string organizationId)
+        {
+            var user = await Session.GetCurrentUser();
+
+            Organization org = await GetOrganizationAsync(organizationId);
+
+            if (org.Members.FirstOrDefault(p => p.PlayerId == user.Id)?.Role.Strength < 3)
+            {
+                throw new Exception("No access");
+            }
+
+            return org;
         }
     }
 }

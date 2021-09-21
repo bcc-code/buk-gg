@@ -43,5 +43,27 @@ namespace Buk.Gaming.Sanity
                 await Sanity.DocumentSet<SanityOrganization>().Update(organization.ToSanity()).CommitAsync();
             }
         }
+
+        public async Task SetImageAsync(Organization organization, Stream image)
+        {
+            var doc = await Sanity.Images.UploadAsync(image, organization.Id);
+
+            organization.Image = doc.Document.Url;
+
+            await Sanity.DocumentSet<SanityOrganization>().PatchById(new()
+            {
+                Id = organization.Id,
+                Set = new
+                {
+                    Image = new SanityImage
+                    {
+                        Asset = new()
+                        {
+                            Ref = doc.Document.Id,
+                        }
+                    }
+                }
+            }).CommitAsync();
+        }
     }
 }

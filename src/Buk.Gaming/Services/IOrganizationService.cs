@@ -12,6 +12,8 @@ namespace Buk.Gaming.Services
 
         Task<List<Organization>> GetOrganizationsAsync(bool includePublic = false);
 
+        Task UpdateOrganizationAsync(string id, Organization.UpdateOptions options);
+
         Task<Organization> CreateOrganizationAsync(Organization.CreateOptions options);
 
         Task DeleteOrganizationAsync(string id);

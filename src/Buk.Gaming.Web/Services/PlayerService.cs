@@ -40,6 +40,11 @@ namespace Buk.Gaming.Web.Services
             return (await GetPlayersAsync()).Values.FirstOrDefault(i => i.PersonId == personId);
         }
 
+        public async Task<Player> GetPlayerByEmailAsync(string email)
+        {
+            return (await GetPlayersAsync()).Values.FirstOrDefault(i => i.Email == email);
+        }
+
         public Task<Dictionary<string, Player>> GetPlayersAsync()
         {
             return Cache.WithSemaphoreAsync("PLAYERS", async () =>

@@ -30,7 +30,7 @@ namespace Buk.Gaming.Web.Services
             _organizations = organizations;
         }
 
-        public async Task<(List<Participant> participants, List<Player> players, List<Team> teams)> GetParticipantsAsync(string tournamentId)
+        public async Task<List<Participant>> GetParticipantsAsync(string tournamentId)
         {
             var user = await Session.GetCurrentUser();
 
@@ -41,7 +41,9 @@ namespace Buk.Gaming.Web.Services
                 throw new UnauthorizedAccessException("No access, stay away!");
             }
 
-            return new(tournament.Participants, tournament.SignupType.Value == SignupType.Player.Value ? await _players.GetPlayersAsync(tournament.Participants.Select(i => i.Id)) : null, tournament.SignupType.Equals(SignupType.Player) ? await _teams.GetTeamsInTournamentAsync(tournamentId) : null);
+
+
+            return tournament.Participants;
         }
 
         public async Task<Tournament> GetTournamentAsync(string tournamentId)

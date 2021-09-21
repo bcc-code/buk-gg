@@ -8,17 +8,10 @@ namespace Buk.Gaming.Repositories
 {
     public interface IOrganizationRepository
     {
-        /// <summary>
-        /// Get all organizations
-        /// </summary>
-        /// <returns></returns>
         Task<List<Organization>> GetOrganizationsAsync();
 
-        /// <summary>
-        /// Save organization
-        /// </summary>
-        /// <param name="organization"></param>
-        /// <returns></returns>
         Task SaveOrganizationAsync(Organization organization);
+
+        Task SetImageAsync(Organization organization, Stream image);
     }
 }

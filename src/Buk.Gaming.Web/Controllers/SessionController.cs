@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Omu.ValueInjecter;
 using Microsoft.AspNetCore.Authorization;
+using Buk.Gaming.Services;
 
 namespace Buk.Gaming.Controllers
 {
@@ -14,9 +15,9 @@ namespace Buk.Gaming.Controllers
     public class SessionController : ControllerBase
     {
         private readonly ISessionProvider _sessionProvider;
-        private readonly PlayerService _players;
+        private readonly IPlayerService _players;
 
-        public SessionController(ISessionProvider sessionProvider, PlayerService players)
+        public SessionController(ISessionProvider sessionProvider, IPlayerService players)
         {
             _sessionProvider = sessionProvider;
             _players = players;
@@ -31,12 +32,13 @@ namespace Buk.Gaming.Controllers
 
         [Route("")]
         [HttpPut]
-        public async Task<User> UpdateCurrentUser(Player player)
+        public async Task<User> UpdateCurrentUser([FromBody] Player.UpdateOptions options)
         {
-            player = await _players.UpdateCurrentUserAsync(player);
-            var user = new User();
-            user.InjectFrom(player);
-            return user;
+            var player = await _sessionProvider.GetCurrentUser();
+
+            await _players.UpdatePlayerAsync(player, options);
+
+            return player;
         }
     }
 }

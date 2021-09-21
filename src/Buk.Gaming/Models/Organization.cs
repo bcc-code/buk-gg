@@ -20,5 +20,12 @@ namespace Buk.Gaming.Models
         {
             public string Name { get; set; }
         }
+
+        public class UpdateOptions
+        {
+            public string Name { get; set; }
+
+            public string Image { get; set; }
+        }
     }
 }
