@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Buk.Gaming.Services;
+using Buk.Gaming.Models.Views;
+using Buk.Gaming.Extensions;
 
 namespace Buk.Gaming.Web.Controllers
 {
@@ -26,16 +28,18 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<OrganizationView>))]
         public async Task<IActionResult> GetOrganizationsAsync()
         {
-            return Ok(await _organizations.GetOrganizationsAsync(true));
+            return Ok((await _organizations.GetOrganizationsAsync(true)).Select(i => i.View()));
         }
 
         [Route("")]
         [HttpPost]
+        [ProducesDefaultResponseType(typeof(OrganizationView))]
         public async Task<IActionResult> CreateOrganizationAsync(Organization.CreateOptions options)
         {
-            return Ok(await _organizations.CreateOrganizationAsync(options));
+            return Ok((await _organizations.CreateOrganizationAsync(options)).View());
         }
 
         [Route("{organizationId}")]
@@ -43,6 +47,12 @@ namespace Buk.Gaming.Web.Controllers
         public async Task<IActionResult> UpdateOrganizationAsync(string organizationId, [FromBody] Organization.UpdateOptions options)
         {
             await _organizations.UpdateOrganizationAsync(organizationId, options);
+
+            if (options.Members != null)
+            {
+                await _organizations.EditMembersAsync(organizationId, options.Members);
+            }
+
             return Ok();
         }
 
@@ -54,11 +64,12 @@ namespace Buk.Gaming.Web.Controllers
             return Ok();
         }
 
-        [Route("{organizationId}/Members")]
-        [HttpPatch]
-        public async Task<IActionResult> EditMembersAsync(string organizationId, [FromBody] Organization.MemberOptions options)
-        {
-
-        }
+        //[Route("{organizationId}/Members")]
+        //[HttpPatch]
+        //public async Task<IActionResult> EditMembersAsync(string organizationId, [FromBody] MemberList.MemberOptions options)
+        //{
+        //    await _organizations.EditMembersAsync(organizationId, options);
+        //    return Ok();
+        //}
     }
 }

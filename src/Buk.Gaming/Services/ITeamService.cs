@@ -1,4 +1,5 @@
-﻿using Buk.Gaming.Models;
+﻿using Buk.Gaming.Classes;
+using Buk.Gaming.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,9 +22,5 @@ namespace Buk.Gaming.Services
         Task<Team> CreateTeamAsync(Team.CreateOptions options);
 
         Task UpdateTeamAsync(string teamId, Team.UpdateOptions options);
-
-        Task AddPlayersAsync(string teamId, IEnumerable<string> playerId);
-
-        Task RemovePlayersAsync(string teamId, IEnumerable<string> playerId);
     }
 }

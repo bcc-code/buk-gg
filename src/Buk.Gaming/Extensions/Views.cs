@@ -48,7 +48,7 @@ namespace Buk.Gaming.Extensions
             Type = i.Type.ToString(),
         };
 
-        public static BaseItemView View(this BaseItem i) => new()
+        public static BaseItemView BaseView(this BaseItem i) => new()
         {
             Id = i.Id,
             Name = i.Name.GetForCurrentCulture(),

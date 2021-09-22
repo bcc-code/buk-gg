@@ -150,72 +150,10 @@ namespace Buk.Gaming.Web.Services
             await _teams.SaveTeamAsync(team);
         }
 
-        public async Task SetCaptainAsync(string teamId, string playerId)
-        {
-            var user = await Session.GetCurrentUser();
-            var team = await GetTeamAsync(teamId);
-            var org = await _organizations.GetOrganizationAsync(team.OrganizationId);
-
-            if (org.Members.FirstOrDefault(m => m.PlayerId == user.Id)?.Role.Strength < Role.Officer.Strength)
-            {
-                throw new Exception("User can't do this");
-            }
-
-            var captain = team.Members.FirstOrDefault(m => m.Role.Equals(Role.Captain));
-            var member = team.Members.FirstOrDefault(m => m.PlayerId == playerId);
-
-            if (captain.PlayerId == member.PlayerId)
-            {
-                throw new Exception("User is already captain");
-            }
-
-            if (member == null)
-            {
-                if (captain == null)
-                {
-                    team.Members.Add(new()
-                    {
-                        PlayerId = playerId,
-                        Role = Role.Captain,
-                    });
-                } else
-                {
-                    team.Members.Add(new()
-                    {
-                        PlayerId = captain.PlayerId,
-                        Role = Role.Member,
-                    });
-                    captain.PlayerId = playerId;
-                }
-            } else
-            {
-                if (captain != null)
-                {
-                    captain.Role = Role.Member;
-                }
-                member.Role = Role.Captain;
-            }
-
-            await _teams.SaveTeamAsync(team);
-        }
-
         public async Task UpdateTeamAsync(string teamId, Team.UpdateOptions options)
         {
-            var user = await Session.GetCurrentUser();
-            var team = await GetTeamAsync(teamId);
+            var (member, team) = await GetTeamWithAccessAndMemberAsync(teamId);
 
-            bool isCaptain = team.Members.Any(m => m.PlayerId == user.Id && m.Role.Equals(Role.Captain));
-            var org = await _organizations.GetOrganizationAsync(team.OrganizationId);
-
-            if (!(isCaptain || org.Members.Any(m => m.PlayerId == user.Id && m.Role.Strength >= Role.Officer.Strength)))
-            {
-                throw new Exception("User can't do this");
-            }
-
-            if (options.CaptainId != null)
-            {
-                await SetCaptainAsync(teamId, options.CaptainId);
-            }
             if (options.Name != null)
             {
                 if (team.Name != options.Name)
@@ -223,8 +161,78 @@ namespace Buk.Gaming.Web.Services
                     team.Name = options.Name;
                 }
             }
+            if (options.Members != null)
+            {
+                if (options.Members.RemoveIds != null)
+                {
+                    foreach (var id in options.Members.RemoveIds)
+                    {
+                        var i = team.Members.Get(id);
+
+                        if (i.Role.Strength >= member.Role.Strength)
+                        {
+                            throw new Exception("Can't edit users with higher rolestrength");
+                        }
+
+                        team.Members.Remove(i);
+                    }
+                }
+                if (options.Members.AddIds != null)
+                {
+                    foreach (var id in options.Members.AddIds)
+                    {
+                        var player = await _players.GetPlayerAsync(id);
+
+                        team.Members.AddMember(player.Id);
+                    }
+                }
+                if (options.Members.RoleAssignments != null)
+                {
+                    if (member.Role <= Role.Captain)
+                    {
+                        throw new Exception("Captains can't set other captains");
+                    }
+                    foreach (var a in options.Members.RoleAssignments)
+                    {
+                        if (Role.Validate(a.Value) == Role.Captain)
+                        {
+                            team.Members.SetRole(a.Key, Role.Captain, true);
+                        }
+                    }
+                }
+            }
 
             await _teams.SaveTeamAsync(team);
+        }
+
+        private async Task<(Member Member, Team Team)> GetTeamWithAccessAndMemberAsync(string id, Role minRole = null)
+        {
+            minRole ??= Role.Captain;
+
+            var user = await Session.GetCurrentUser();
+
+            Team team = await GetTeamAsync(id);
+
+            var member = team.Members.FirstOrDefault(p => p.PlayerId == user.Id);
+
+            if (member?.Role.Strength < minRole.Strength)
+            {
+                var org = await _organizations.GetOrganizationAsync(team.OrganizationId);
+                member = org.Members.Get(user.Id);
+                if (member.Role.Strength < Role.Officer.Strength)
+                {
+                    throw new Exception("No access");
+                }
+            }
+
+            return new(member, team);
+        }
+
+        private async Task<Team> GetTeamWithAccessAsync(string organizationId, Role minRole = null)
+        {
+            minRole ??= Role.Captain;
+
+            return (await GetTeamWithAccessAndMemberAsync(organizationId, minRole)).Team;
         }
     }
 }

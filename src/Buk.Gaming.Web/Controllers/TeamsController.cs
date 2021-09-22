@@ -30,6 +30,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<TeamView>))]
         public async Task<IActionResult> GetTeamsAsync()
         {
             await Session.GetCurrentUser();
@@ -47,6 +48,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("Game/{gameId}")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<TeamView>))]
         public async Task<IActionResult> GetTeamsInGameAsync(string gameId)
         {
             await Session.GetCurrentUser();
@@ -62,6 +64,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("Organization/{organizationId}")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<TeamView>))]
         public async Task<IActionResult> GetTeamsInOrganizationAsync(string organizationId)
         {
             await Session.GetCurrentUser();
@@ -77,6 +80,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("")]
         [HttpPost]
+        [ProducesDefaultResponseType(typeof(TeamView))]
         public async Task<IActionResult> CreateTeamAsync([FromBody] Team.CreateOptions options)
         {
             return Ok(await _teams.CreateTeamAsync(options));
@@ -87,22 +91,6 @@ namespace Buk.Gaming.Web.Controllers
         public Task<IActionResult> DeleteTeamAsync(string teamId)
         {
             throw new NotImplementedException();
-        }
-
-        [Route("{teamId}/Players")]
-        [HttpPost]
-        public async Task<IActionResult> AddPlayersAsync(string teamId, [FromBody] List<string> playerIds)
-        {
-            await _teams.AddPlayersAsync(teamId, playerIds);
-            return Ok();
-        }
-
-        [Route("{teamId}/Players")]
-        [HttpPatch]
-        public async Task<IActionResult> RemovePlayersAsync(string teamId, [FromBody] List<string> playerIds)
-        {
-            await _teams.RemovePlayersAsync(teamId, playerIds);
-            return Ok();
         }
 
         [Route("{teamId}")]

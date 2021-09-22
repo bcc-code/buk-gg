@@ -1,4 +1,5 @@
-﻿using Buk.Gaming.Models;
+﻿using Buk.Gaming.Classes;
+using Buk.Gaming.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,7 +19,7 @@ namespace Buk.Gaming.Services
 
         Task DeleteOrganizationAsync(string id);
 
-        Task EditMembersAsync(string organizationId, Organization.MemberOptions options);
+        Task EditMembersAsync(string organizationId, MemberList.UpdateOptions options);
 
         Task AskToJoinAsync(string organizationId);
     }

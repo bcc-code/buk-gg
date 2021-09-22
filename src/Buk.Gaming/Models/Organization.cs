@@ -27,15 +27,8 @@ namespace Buk.Gaming.Models
             public string Name { get; set; }
 
             public string Image { get; set; }
-        }
 
-        public class MemberOptions
-        {
-            public List<string> AddMembers { get; set; }
-
-            public List<string> RemoveMembers { get; set; }
-
-            public Dictionary<string, string> RoleAssignments { get; set; }
+            public MemberList.UpdateOptions Members { get; set; }
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Buk.Gaming.Models;
 using Buk.Gaming.Providers;
 using Buk.Gaming.Repositories;
 using Buk.Gaming.Toornament;
@@ -28,6 +29,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<EventInfo>))]
         public async Task<IActionResult> GetEventsAsync()
         {
             if (await Session.GetCurrentUser() == null)
@@ -40,6 +42,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("{eventId}")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(EventInfo))]
         public async Task<IActionResult> GetEventAsync(string eventId)
         {
             if (await Session.GetCurrentUser() == null)

@@ -25,6 +25,7 @@ namespace Buk.Gaming.Controllers
 
         [Route("")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(User))]
         public async Task<IActionResult> GetCurrentSession()
         {
             return Ok(await _sessionProvider.GetCurrentUser());
@@ -32,6 +33,7 @@ namespace Buk.Gaming.Controllers
 
         [Route("")]
         [HttpPut]
+        [ProducesDefaultResponseType(typeof(User))]
         public async Task<User> UpdateCurrentUser([FromBody] Player.UpdateOptions options)
         {
             var player = await _sessionProvider.GetCurrentUser();

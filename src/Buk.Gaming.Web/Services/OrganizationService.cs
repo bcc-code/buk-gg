@@ -97,13 +97,13 @@ namespace Buk.Gaming.Web.Services
             await _organizations.SaveOrganizationAsync(org);
         }
 
-        public async Task EditMembersAsync(string organizationId, Organization.MemberOptions options)
+        public async Task EditMembersAsync(string organizationId, MemberList.UpdateOptions options)
         {
             var (member, org) = await GetOrganizationWithAccessAndMemberAsync(organizationId, 2);
 
-            if (options.RemoveMembers != null)
+            if (options.RemoveIds != null)
             {
-                foreach (var id in options.RemoveMembers)
+                foreach (var id in options.RemoveIds)
                 {
                     var i = org.Members.Get(id);
 
@@ -115,31 +115,23 @@ namespace Buk.Gaming.Web.Services
                     org.Members.Remove(i);
                 }
             }
-            if (options.AddMembers != null)
+            if (options.AddIds != null)
             {
-                foreach (var id in options.AddMembers)
+                foreach (var id in options.AddIds)
                 {
-                    if (org.Members.Has(id))
-                    {
-                        throw new Exception("Member already exists");
-                    }
-
                     var player = await _players.GetPlayerAsync(id);
 
-                    org.Members.Add(new()
-                    {
-                        PlayerId = player.Id,
-                        Role = Role.Member,
-                    });
+                    org.Members.AddMember(player.Id);
                 }
             }
             if (options.RoleAssignments != null)
             {
                 foreach (var entry in options.RoleAssignments)
                 {
-                    var i = org.Members.Get(entry.Key);
+                    var role = Role.Validate(entry.Value);
+                    role.VerifyLessThan(member.Role);
 
-                    i.Role = Role.Validate(entry.Value);
+                    org.Members.SetRole(entry.Key, role, role == Role.Owner);
                 }
             }
 
@@ -219,7 +211,6 @@ namespace Buk.Gaming.Web.Services
 
                 await _organizations.SetImageAsync(org, ms);
             }
-
             else
             {
                 await _organizations.SaveOrganizationAsync(org);

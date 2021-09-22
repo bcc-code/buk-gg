@@ -36,6 +36,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<TournamentView>))]
         public async Task<IActionResult> GetTournamentsAsync()
         {
             await Session.GetCurrentUser();
@@ -53,6 +54,7 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("{tournamentId}/Participants")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<ParticipantView>))]
         public async Task<IActionResult> GetTournamenAsync(string tournamentId)
         {
             await Session.GetCurrentUser();

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Buk.Gaming.Web.Controllers
 {
     [Authorize]
-    [Route("api/localization")]
+    [Route("api/[controller]")]
     public class LocalizationController : ControllerBase
     {
         public LocalizationController(ILocalizationService localization, ISessionProvider session) : base()

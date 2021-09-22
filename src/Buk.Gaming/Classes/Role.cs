@@ -16,20 +16,20 @@ namespace Buk.Gaming.Classes
 
         public int Strength => _strengths.GetValueOrDefault(this);
 
-        public static Role Member => new("member");
+        public static readonly Role Member = new("member");
 
-        public static Role Officer => new("officer");
+        public static readonly Role Officer = new("officer");
 
-        public static Role Owner => new("owner");
+        public static readonly Role Owner = new("owner");
 
-        public static Role Captain => new("captain");
+        public static readonly Role Captain = new("captain");
 
         private readonly static Dictionary<Role, int> _strengths = new()
         {
             [Member] = 1,
             [Captain] = 2,
-            [Owner] = 3,
-            [Captain] = 3,
+            [Officer] = 3,
+            [Owner] = 4,
         };
 
         public override string ToString() => Value;
@@ -51,6 +51,17 @@ namespace Buk.Gaming.Classes
                 throw new Exception("Role not validated");
             }
             return new Role(value);
+        }
+
+        public static bool operator >=(Role role, Role compare) => role.Strength >= compare.Strength;
+        public static bool operator <=(Role role, Role compare) => role.Strength <= compare.Strength;
+        public static bool operator <(Role role, Role compare) => role.Strength < compare.Strength;
+        public static bool operator >(Role role, Role compare) => role.Strength > compare.Strength;
+
+        public void VerifyLessThan(Role role) 
+        {
+            if (this >= role)
+                throw new Exception("Role is greater than specified");
         }
     }
 }

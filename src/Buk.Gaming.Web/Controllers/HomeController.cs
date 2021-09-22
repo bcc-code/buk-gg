@@ -12,12 +12,5 @@ namespace Buk.Gaming.Controllers
         {
             return Redirect("https://buk.gg");
         }
-
-        [Route("api/version")]
-        [HttpGet]
-        public IActionResult Version()
-        {
-            return Ok(_version);
-        }
     }
 }

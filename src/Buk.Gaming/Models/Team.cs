@@ -32,7 +32,7 @@ namespace Buk.Gaming.Models
         {
             public string Name { get; set; }
 
-            public string CaptainId { get; set;}
+            public MemberList.UpdateOptions Members { get; set; }
         }
     }
 }

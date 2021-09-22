@@ -29,6 +29,7 @@ namespace Buk.Gaming.Controllers
 
         [Route("Search/{searchString}")]
         [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<DiscordMember>))]
         public async Task<IActionResult> SearchForMembers(string searchString)
         {
             User user = await Session.GetCurrentUser();
