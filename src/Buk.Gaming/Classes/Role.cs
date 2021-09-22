@@ -17,11 +17,8 @@ namespace Buk.Gaming.Classes
         public int Strength => _strengths.GetValueOrDefault(this);
 
         public static readonly Role Member = new("member");
-
         public static readonly Role Officer = new("officer");
-
         public static readonly Role Owner = new("owner");
-
         public static readonly Role Captain = new("captain");
 
         private readonly static Dictionary<Role, int> _strengths = new()
