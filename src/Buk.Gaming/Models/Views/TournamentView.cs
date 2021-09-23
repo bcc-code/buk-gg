@@ -24,6 +24,12 @@ namespace Buk.Gaming.Models.Views
 
         public List<TeamView> Teams { get; set; }
 
+        public string TelegramLink { get; set; }
+
+        public string ToornamentId { get; set; }
+
+        public string Platform { get; set; }
+
         public string SignupType { get; set; }
     }
 }

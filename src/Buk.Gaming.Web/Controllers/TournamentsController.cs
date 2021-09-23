@@ -77,7 +77,7 @@ namespace Buk.Gaming.Web.Controllers
             {
                 if (participant.Type.Equals(ParticipantType.Player))
                 {
-                    participants.Add(participant.View(await _players.GetPlayerAsync(participant.Id)));
+                    participants.Add(participant.View(new() { await _players.GetPlayerAsync(participant.Id) }));
                 } else if (participant.Type.Equals(ParticipantType.Team))
                 {
                     participants.Add(

@@ -14,7 +14,7 @@ namespace Buk.Gaming.Models.Views
 
         public string ToornamentId { get; set; }
 
-        public PlayerView Player { get; set; }
+        public List<PlayerAdminView> Players { get; set; }
 
         public TeamView Team { get; set; }
     }

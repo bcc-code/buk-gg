@@ -31,6 +31,17 @@ namespace Buk.Gaming.Extensions
             Id = i.Id,
         };
 
+        public static PlayerAdminView AdminView(this Player i) => new()
+        {
+            Id = i.Id,
+            DiscordTag = i.DiscordUser,
+            DisplayName = i.DisplayName,
+            Name = i.Name,
+            Email = i.Email,
+            Location = i.Location,
+            PhoneNumber = i.PhoneNumber,
+        };
+
         public static OrganizationView View(this Organization i, Dictionary<string, Player> players = null, List<Team> teams = null) => new()
         {
             Id = i.Id,
@@ -38,7 +49,7 @@ namespace Buk.Gaming.Extensions
             Logo = i.Image,
             Members = i.Members.Select(m => m.View(players?.GetValueOrDefault(m.PlayerId))).ToList(),
             Teams = teams?.Select(t => t.View(players)).ToList(),
-            Invitations = i.Invitations?.Select(m => m.View()).ToList(),
+            Invitations = i.Invitations.Select(m => m.View()).ToList(),
         };
 
         public static InvitationView View(this Invitation i, Player player = null) => new()
@@ -62,30 +73,29 @@ namespace Buk.Gaming.Extensions
             PhoneNumber = i.PhoneNumber,
         };
 
-        public static BaseTournamentView BaseView(this Tournament i, string userId) => new()
+        public static BaseTournamentView BaseView(this Tournament i, string userId) => i.View(userId);
+
+        public static TournamentView View(this Tournament i, string userId, List<Team> teams = null) => new()
         {
             Id = i.Id,
             LiveStream = i.LiveStream,
             Logo = i.Logo,
             Title = i.Title.GetForCurrentCulture(),
             SignedUp = i.Participants.Any(p => p.Type == ParticipantType.Player && p.Id == userId),
-        };
-
-        public static TournamentView View(this Tournament i, string userId, List<Team> teams = null) => new()
-        {
+            Responsible = i.ResponsibleId == userId,
+            Slug = i.Slug,
             Body = i.Body.GetForCurrentCulture(),
             Contacts = i.Contacts.Select(c => c.View()).ToList(),
-            Id = i.Id,
-            LiveStream = i.LiveStream,
             MaxPlayers = i.TeamSize.Max,
             MinPlayers = i.TeamSize.Min,
             RegistrationOpen = i.RegistrationOpen,
             RequiredInfo = i.RequiredInformation.Select(r => r.GetForCurrentCulture()).ToList(),
             SignupType = i.SignupType.ToString(),
             Teams = teams?.Select(t => t.View()).ToList(),
-            Title = i.Title.GetForCurrentCulture(),
             Winner = teams?.FirstOrDefault(t => t.Id == i.WinnerId)?.View(),
-            SignedUp = (i.SignupType == SignupType.Player && i.Participants.Any(p => p.Id == userId)) || teams?.Any(t => t.Members.Any(m => m.PlayerId == userId)) == true,
+            TelegramLink = i.TelegramLink,
+            ToornamentId = i.ToornamentId,
+            Platform = i.Platform,
         };
 
         public static ParticipantView View(this Participant i, Team team = null, Dictionary<string, Player> players = null) => new()
@@ -97,13 +107,13 @@ namespace Buk.Gaming.Extensions
             Team = team?.View(players),
         };
 
-        public static ParticipantView View(this Participant i, Player player) => new()
+        public static ParticipantView View(this Participant i, List<Player> players) => new()
         {
             Id = i.Id,
             Information = i.Information,
             ToornamentId = i.ToornamentId,
             Type = i.Type.ToString(),
-            Player = player?.View(),
+            Players = players.Select(i => i.AdminView()).ToList(),
         };
     }
 }

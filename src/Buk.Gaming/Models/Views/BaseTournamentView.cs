@@ -15,5 +15,9 @@ namespace Buk.Gaming.Models.Views
         public string LiveStream { get; set; }
 
         public bool SignedUp { get; set; }
+
+        public bool Responsible { get; set; }
+
+        public string Slug { get; set; }
     }
 }
