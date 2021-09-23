@@ -62,7 +62,16 @@ namespace Buk.Gaming.Extensions
             PhoneNumber = i.PhoneNumber,
         };
 
-        public static TournamentView View(this Tournament i, List<Team> teams = null) => new()
+        public static BaseTournamentView BaseView(this Tournament i, string userId) => new()
+        {
+            Id = i.Id,
+            LiveStream = i.LiveStream,
+            Logo = i.Logo,
+            Title = i.Title.GetForCurrentCulture(),
+            SignedUp = i.Participants.Any(p => p.Type == ParticipantType.Player && p.Id == userId),
+        };
+
+        public static TournamentView View(this Tournament i, string userId, List<Team> teams = null) => new()
         {
             Body = i.Body.GetForCurrentCulture(),
             Contacts = i.Contacts.Select(c => c.View()).ToList(),
@@ -76,6 +85,7 @@ namespace Buk.Gaming.Extensions
             Teams = teams?.Select(t => t.View()).ToList(),
             Title = i.Title.GetForCurrentCulture(),
             Winner = teams?.FirstOrDefault(t => t.Id == i.WinnerId)?.View(),
+            SignedUp = (i.SignupType == SignupType.Player && i.Participants.Any(p => p.Id == userId)) || teams?.Any(t => t.Members.Any(m => m.PlayerId == userId)) == true,
         };
 
         public static ParticipantView View(this Participant i, Team team = null, Dictionary<string, Player> players = null) => new()

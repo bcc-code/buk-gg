@@ -36,20 +36,32 @@ namespace Buk.Gaming.Web.Controllers
 
         [Route("")]
         [HttpGet]
-        [ProducesDefaultResponseType(typeof(IEnumerable<TournamentView>))]
+        [ProducesDefaultResponseType(typeof(IEnumerable<BaseTournamentView>))]
         public async Task<IActionResult> GetTournamentsAsync()
         {
-            await Session.GetCurrentUser();
+            var user = await Session.GetCurrentUser();
 
-            List<TournamentView> tournaments = new();
+            List<BaseTournamentView> tournaments = new();
             var ts = await _tournaments.GetTournamentsAsync();
 
             foreach (var t in ts)
             {
-                tournaments.Add(t.View(t.SignupType.Value == SignupType.Team.Value ? await _tournaments.GetTeamsAsync(t.Id) : null));
+                tournaments.Add(t.BaseView(user.Id));
             }
 
             return Ok(tournaments);
+        }
+
+        [Route("{tournamentId}")]
+        [HttpGet]
+        [ProducesDefaultResponseType(typeof(IEnumerable<TournamentView>))]
+        public async Task<IActionResult> GetTournamentAsync(string tournamentId)
+        {
+            var user = await Session.GetCurrentUser();
+
+            var t = await _tournaments.GetTournamentAsync(tournamentId);
+
+            return Ok(t.View(user.Id, await _tournaments.GetTeamsAsync(t.Id)));
         }
 
         [Route("{tournamentId}/Participants")]

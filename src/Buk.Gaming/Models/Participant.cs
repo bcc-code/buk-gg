@@ -15,7 +15,7 @@ namespace Buk.Gaming.Models
         public string ToornamentId { get; set; }
     }
 
-    public class ParticipantType
+    public class ParticipantType : IEquatable<ParticipantType>
     {
         private ParticipantType(string value)
         {
@@ -30,5 +30,14 @@ namespace Buk.Gaming.Models
         public static readonly ParticipantType Team = new("team");
 
         public static ParticipantType Validate(string value) => value == Player.Value ? Player : Team;
+
+        public bool Equals(ParticipantType other) => this == other;
+
+        public override bool Equals(object obj) => Equals(obj as ParticipantType);
+
+        public override int GetHashCode() => Value.GetHashCode();
+
+        public static bool operator ==(ParticipantType type, ParticipantType compare) => type.Value == compare.Value;
+        public static bool operator !=(ParticipantType type, ParticipantType compare) => type.Value != compare.Value;
     }
 }

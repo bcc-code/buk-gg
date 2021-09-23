@@ -4,17 +4,13 @@ using System.Text;
 
 namespace Buk.Gaming.Models.Views
 {
-    public class TournamentView
+    public class TournamentView : BaseTournamentView
     {
-        public string Id { get; set; }
-
-        public string Title { get; set; }
-
         public string Body { get; set; }
 
-        public bool RegistrationOpen { get; set; }
+        public string Image { get; set; }
 
-        public string LiveStream { get; set; }
+        public bool RegistrationOpen { get; set; }
 
         public int MaxPlayers { get; set; }
 
@@ -24,10 +20,10 @@ namespace Buk.Gaming.Models.Views
 
         public TeamView Winner { get; set; }
 
-        public string SignupType { get; set; }
-
         public List<string> RequiredInfo { get; set; }
 
         public List<TeamView> Teams { get; set; }
+
+        public string SignupType { get; set; }
     }
 }

@@ -67,7 +67,7 @@ namespace Buk.Gaming.Web.Services
                 return await _tournaments.GetTournamentsAsync();
             }, TimeSpan.FromMinutes(30));
         }
-        
+
         public async Task RegisterAsync(string tournamentId, List<string> information = null)
         {
             var user = await Session.GetCurrentUser();
