@@ -119,15 +119,15 @@ namespace Buk.Gaming.Sanity.Models
                 Game = Game?.Value?.ToGame(),
                 Id = Id,
                 SignupType = SignupType,
-                RequiredInformation = RequiredInfo.Select(s => s.GetForCurrentCulture()).ToList(),
+                RequiredInformation = RequiredInfo?.Select(s => s.GetForCurrentCulture()).ToList(),
                 TeamSize =TeamSize,
-                SoloPlayers = SoloPlayers.Select(p => p.ToParticipant()).ToList(),
-                CategoryIds = Categories.Select(c => c.Ref).ToList(),
+                SoloPlayers = SoloPlayers?.Select(p => p.ToParticipant()).ToList(),
+                CategoryIds = Categories?.Select(c => c.Ref).ToList(),
                 Winner = Winner?.Value?.Name,
                 Contacts = Contacts,
-                Responsible = Responsible.Value,
-                ResponsibleId = Responsible.Ref,
-                ParticipantTeams = Teams.Select(t => t.ToParticipant()).ToList(),
+                Responsible = Responsible?.Value,
+                ResponsibleId = Responsible?.Ref,
+                ParticipantTeams = Teams?.Select(t => t.ToParticipant()).ToList(),
             };
         }
 
