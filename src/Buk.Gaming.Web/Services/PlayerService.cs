@@ -55,10 +55,10 @@ namespace Buk.Gaming.Web.Services
 
         public async Task UpdatePlayerAsync(Player player, Player.UpdateOptions options)
         {
-            player.Nickname = options.Nickname;
-            player.PhoneNumber = options.PhoneNumber;
-            player.DiscordId = options.DiscordId;
-            player.DiscordUser = options.DiscordUser;
+            player.Nickname = options.Nickname ?? player.Nickname;
+            player.PhoneNumber = options.PhoneNumber ?? player.PhoneNumber;
+            player.DiscordId = options.DiscordId ?? player.DiscordId;
+            player.DiscordUser = options.DiscordUser ?? player.DiscordUser;
 
             await SavePlayerAsync(player);
         }
