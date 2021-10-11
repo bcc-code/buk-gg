@@ -49,6 +49,7 @@ namespace Buk.Gaming.Sanity
                 foreach (var org in organizations)
                 {
                     List<SanityMember> removeMembers = new List<SanityMember>();
+                    List<SanityPendingMember> removePending = new List<SanityPendingMember>();
                     foreach (var member in org.Members)
                     {
                         member.Player.Value = players.FirstOrDefault(p => p.Id == member.Player.Ref);
@@ -58,11 +59,23 @@ namespace Buk.Gaming.Sanity
                             removeMembers.Add(member);
                         }
                     }
+                    foreach (var member in org.Pending)
+                    {
+                        member.Player.Value = players.FirstOrDefault(p => p.Id == member.Player.Ref);
+
+                        if (member.Player.Value == null)
+                        {
+                            removePending.Add(member);
+                        }
+                    }
                     foreach (var member in removeMembers)
                     {
                         org.Members.Remove(member);
                     }
-
+                    foreach (var member in removePending)
+                    {
+                        org.Pending.Remove(member);
+                    }
                 }
 
                 return organizations;
