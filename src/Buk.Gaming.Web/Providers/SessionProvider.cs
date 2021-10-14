@@ -101,7 +101,7 @@ namespace Buk.Gaming.Web.Providers
 
                                     if (player.DiscordId != null) {
                                         var discordUser = await _discord.SyncUserAsync(player);
-                                        if (discordUser.Id != null) {
+                                        if (discordUser?.Id != null) {
                                             player.DiscordIsConnected = true;
                                             player.DiscordUser = discordUser.Tag;
                                         }
