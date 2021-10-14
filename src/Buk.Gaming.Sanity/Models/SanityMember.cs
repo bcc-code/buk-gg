@@ -14,7 +14,6 @@ namespace Buk.Gaming.Sanity.Models
     {
         public string Role { get; set; }
 
-        [Include]
         public SanityReference<SanityPlayer> Player { get; set; }
     }
 }
