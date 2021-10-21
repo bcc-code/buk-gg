@@ -64,9 +64,17 @@ namespace Buk.Gaming.Web.Controllers
             Toornament.Participant team = new Toornament.Participant{Identifier = addTeam.Item.Id, Name = addTeam.Item.Name};
             if (!string.IsNullOrEmpty(tournament?.ToornamentId)) 
             {
-                team = await Toornament.Organizer.AddParticipantAsync(tournament.ToornamentId, team);
+                try
+                {
+                    team = await Toornament.Organizer.AddParticipantAsync(tournament.ToornamentId, team);
+                }
+                catch
+                {
+                    var parts = await Toornament.Organizer.GetParticipantsAsync(tournament.ToornamentId);
+                    team = parts.FirstOrDefault(p => p.Identifier == addTeam.Item.Id);
+                }
             }
-            var participant = new Participant<Team>{Item = addTeam.Item, Information = addTeam.Information, ToornamentId = team.Id};
+            var participant = new Participant<Team>{Item = addTeam.Item, Information = addTeam.Information, ToornamentId = team?.Id};
             return Ok(await TournamentInfo.AddTeamToTournamentAsync(tournamentId, participant));
         }
 
