@@ -61,7 +61,10 @@ namespace Buk.Gaming.Web.Controllers
                 return Unauthorized();
             }
             var tournament = (await TournamentInfo.GetAllTournamentsAsync()).FirstOrDefault(t => t.Id == tournamentId || t.Slug == tournamentId || t.ToornamentId == tournamentId);
+            if (tournament.Teams.Any(i => i.Id == addTeam.Item.Id))
+                return Ok();
             Toornament.Participant team = new Toornament.Participant{Identifier = addTeam.Item.Id, Name = addTeam.Item.Name};
+            
             if (!string.IsNullOrEmpty(tournament?.ToornamentId)) 
             {
                 try
