@@ -63,7 +63,7 @@ namespace Buk.Gaming.Sanity.Models {
                 Ref = player.Id,
             };
 
-            this.Key = player.Id;
+            this.Key = Guid.NewGuid().ToString();
 
             this.Type = type;
         }

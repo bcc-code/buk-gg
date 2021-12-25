@@ -15,7 +15,7 @@ namespace Buk.Gaming.Sanity.Models
         public SanityMember(Player player, string role)
         {
             SanityType = "member";
-            SanityKey = player.Id;
+            SanityKey = Guid.NewGuid().ToString();
             this.Player = new SanityReference<Player>()
             {
                 Ref = player.Id,
