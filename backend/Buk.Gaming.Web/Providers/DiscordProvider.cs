@@ -1,24 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
-using Auth0.AuthenticationApi;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
+using Buk.Gaming.Models;
+using Buk.Gaming.Providers;
+using Buk.Gaming.Repositories;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Buk.Gaming.Models;
-using Buk.Gaming.Providers;
-using Omu.ValueInjecter;
-using Buk.Gaming.Repositories;
-using System.Collections.Concurrent;
-using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Buk.Gaming.Web.Providers
 {
@@ -74,15 +66,6 @@ namespace Buk.Gaming.Web.Providers
             {
                 return null;
             }
-        }
-
-        public async Task<List<DiscordMember>> SearchForMembersAsync(string searchString)
-        {
-            var client = http.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", token);
-            var response = await (await client.GetAsync($"{basePath}/Search/{searchString}")).Content.ReadAsStringAsync();
-
-            return JsonConvert.DeserializeObject<List<DiscordMember>>(JsonConvert.DeserializeObject<string>(response));
         }
     }
 }

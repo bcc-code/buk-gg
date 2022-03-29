@@ -26,20 +26,5 @@ namespace Buk.Gaming.Web.Controllers
         public ISessionProvider Session { get; }
 
         public IDiscordProvider Discord { get; }
-
-        [Route("Search/{searchString}")]
-        [HttpGet]
-        public async Task<IActionResult> SearchForMembers(string searchString)
-        {
-            User user = await Session.GetCurrentUser();
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var result = await Discord.SearchForMembersAsync(searchString);
-
-            return Ok(result);
-        }
     }
 }
