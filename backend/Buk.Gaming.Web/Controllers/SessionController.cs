@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Omu.ValueInjecter;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Buk.Gaming.Controllers
+namespace Buk.Gaming.Web.Controllers
 {
     [Authorize]
     [Route("api/Session")]

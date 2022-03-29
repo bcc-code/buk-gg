@@ -16,14 +16,13 @@ using Sanity.Linq;
 using Microsoft.Extensions.Options;
 using Buk.Gaming.Sanity;
 using Buk.Gaming.Sanity.Serializers;
-using Buk.Gaming.Images;
 using Buk.Gaming.Toornament;
 using Buk.Gaming.Repositories;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Net.Http.Headers;
 
-namespace Buk.Gaming
+namespace Buk.Gaming.Web
 {
     public class Startup
     {
@@ -97,11 +96,6 @@ namespace Buk.Gaming
                 services.AddScoped<ILocalizationService, CachedSanityLocalizationService>();
             }
 
-            // Images
-            services.AddTransient<IImageService, ImageService>();
-            services.Configure<ImageOptions>(Configuration.GetSection("Images"));
-            services.AddTransient(s => s.GetService<IOptionsSnapshot<ImageOptions>>().Value);
-            
             // Mapping
 
 
@@ -165,7 +159,7 @@ namespace Buk.Gaming
             }
             else
             {
-                if (!isLocal) 
+                if (!isLocal)
                 {
                     app.UseHttpsRedirection();
                     //app.UseHsts();
@@ -197,7 +191,7 @@ namespace Buk.Gaming
             app.UseCors();
 
             app.UseRouting();
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
 

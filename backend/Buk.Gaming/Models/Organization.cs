@@ -1,13 +1,11 @@
-using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace Buk.Gaming.Models
 {
     public class Organization
     {
-		[JsonProperty("_id")]
         public string Id { get; set; }
-        [JsonProperty("_type")]
+
 		public string Type => "organization";
 
         public bool IsPublic { get; set; }
@@ -22,7 +20,6 @@ namespace Buk.Gaming.Models
     }
 
     public class Member {
-        [JsonProperty("_key")]
         public string Key { get; set; }
 
         public Player Player { get; set; }
@@ -39,7 +36,6 @@ namespace Buk.Gaming.Models
 
     public class PendingMember
     {
-        [JsonProperty("_key")]
         public string Key { get; set; }
 
         public Player Player { get; set; }
@@ -56,7 +52,6 @@ namespace Buk.Gaming.Models
 
     public class Reference
     {
-        [JsonProperty("_ref")]
         public string Ref { get; set; }
     }
 }

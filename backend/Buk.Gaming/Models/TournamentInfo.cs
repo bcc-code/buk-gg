@@ -1,7 +1,4 @@
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Buk.Gaming.Models
 {
@@ -72,7 +69,6 @@ namespace Buk.Gaming.Models
     }
 
     public class Contact {
-        [JsonProperty("_key")]
         public string Key { get; set; }
 
         public string Name { get; set; }
@@ -86,7 +82,6 @@ namespace Buk.Gaming.Models
 
     public class Game
     {
-        [JsonProperty("_id")]
         public string Id { get; set; }
 
         public string Name { get; set; }

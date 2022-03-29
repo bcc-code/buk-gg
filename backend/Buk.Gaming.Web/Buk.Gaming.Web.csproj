@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>407c48ec-cfa8-4fba-8a30-e965145a881a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Buk.Gaming.Images\Buk.Gaming.Images.csproj" />
     <ProjectReference Include="..\Buk.Gaming.Sanity\Buk.Gaming.Sanity.csproj" />
     <ProjectReference Include="..\Buk.Gaming.Store\Buk.Gaming.Store.csproj" />
     <ProjectReference Include="..\Buk.Gaming.Toornament\Buk.Gaming.Toornament.csproj" />

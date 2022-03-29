@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace Buk.Gaming.Controllers
+namespace Buk.Gaming.Web.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
@@ -32,7 +32,7 @@ namespace Buk.Gaming.Controllers
         public async Task<IActionResult> SearchForMembers(string searchString)
         {
             User user = await Session.GetCurrentUser();
-            if (user == null) 
+            if (user == null)
             {
                 return Unauthorized();
             }

@@ -25,6 +25,7 @@ using Buk.Gaming.Toornament;
 using Buk.Gaming.Repositories;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Buk.Gaming.Web;
 
 namespace Buk.Gaming.IntegrationTests
 {

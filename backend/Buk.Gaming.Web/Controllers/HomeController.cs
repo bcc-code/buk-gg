@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 
-namespace Buk.Gaming.Controllers
+namespace Buk.Gaming.Web.Controllers
 {
     public class HomeController : Controller
     {
